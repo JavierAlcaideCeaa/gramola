@@ -1,4 +1,4 @@
-<div class="dashboard-container">
+﻿<div class="dashboard-container">
   
   <!-- ========== LOADING STATE ========== -->
   <div *ngIf="loading" class="loading-state">
@@ -25,6 +25,7 @@
         <h1>🎵 {{ barName }}</h1>
         <p class="user-email">📧 {{ userEmail }}</p>
         <p class="user-location" *ngIf="latitude && longitude">📍 {{ latitude }}, {{ longitude }}</p>
+        <img *ngIf="signature" [src]="signature" alt="Firma" class="signature-img">
       </div>
       <div class="header-right">
         <button class="btn-secondary" (click)="getDevices()">

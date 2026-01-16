@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -8,6 +8,7 @@ export interface LoginResponse {
   clientId: string;
   latitude?: string;
   longitude?: string;
+  signature?: string;
 }
 
 @Injectable({
@@ -17,7 +18,7 @@ export class UserService {
   private http = inject(HttpClient);
   private apiUrl = 'http://127.0.0.1:8080/user';  // ✅ CAMBIAR
 
-  register(email: string, pwd1: string, pwd2: string, barName: string, clientId: string, clientSecret: string, address?: string, latitude?: number, longitude?: number): Observable<void> {
+  register(email: string, pwd1: string, pwd2: string, barName: string, clientId: string, clientSecret: string, address?: string, latitude?: number, longitude?: number, signature?: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/register`, {
       email,
       pwd1,
@@ -27,7 +28,8 @@ export class UserService {
       clientSecret,
       address,
       latitude,
-      longitude
+      longitude,
+      signature
     });
   }
   

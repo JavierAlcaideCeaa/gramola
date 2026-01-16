@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -77,6 +77,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   barName: string = '';
   latitude: string = '';
   longitude: string = '';
+  signature: string = '';
 
   // DISPOSITIVOS
   devices: SpotifyDevice[] = [];
@@ -142,10 +143,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.barName = sessionStorage.getItem('barName') || '';
     this.latitude = sessionStorage.getItem('latitude') || '';
     this.longitude = sessionStorage.getItem('longitude') || '';
+    this.signature = sessionStorage.getItem('signature') || '';
     
     console.log('📧 Email:', this.userEmail);
     console.log('🏪 Bar:', this.barName);
     console.log('📍 Coordenadas:', this.latitude, this.longitude);
+    console.log('✍️ Firma:', this.signature ? '✅ Presente' : '❌ NO presente');
     console.log('🔑 Access Token:', this.accessToken ? '✅ Presente' : '❌ NO presente');
     
     if (!this.accessToken) {

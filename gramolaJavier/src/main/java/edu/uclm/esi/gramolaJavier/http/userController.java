@@ -1,4 +1,4 @@
-package edu.uclm.esi.gramolaJavier.http;
+﻿package edu.uclm.esi.gramolaJavier.http;
 
 import java.io.IOException;
 import java.util.Map;
@@ -30,6 +30,7 @@ public class userController {
         String clientId = body.get("clientId");
         String clientSecret = body.get("clientSecret");
         String address = body.get("address"); // NUEVO: Dirección postal
+        String signature = body.get("signature"); // NUEVO: Firma digital
         
         // Extraer coordenadas GPS (pueden ser null si no se proporcionan)
         Double latitude = null;
@@ -53,7 +54,7 @@ public class userController {
                 "Faltan datos obligatorios");
         }
         
-        this.service.register(email, pwd1, pwd2, barName, clientId, clientSecret, address, latitude, longitude);
+        this.service.register(email, pwd1, pwd2, barName, clientId, clientSecret, address, latitude, longitude, signature);
     }
     
     /**

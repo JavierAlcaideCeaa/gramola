@@ -1,4 +1,4 @@
-package edu.uclm.esi.gramolaJavier;
+﻿package edu.uclm.esi.gramolaJavier;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
@@ -36,9 +36,11 @@ public class QueuePaymentSeleniumTest {
     private QueuePaymentTransactionDao queuePaymentTransactionDao;
     
     private static final String BASE_URL = "http://127.0.0.1:4200";
-    private static final String TEST_EMAIL = "alcaidejavier6@gmail.com";
-    private static final String TEST_PASSWORD = "120230";
-    private static final String CUSTOMER_NAME = "Javier Test";
+    // NOTA: Configura aquí las credenciales de tu cuenta de test
+    // Esta cuenta debe existir en la BD, estar confirmada y con pago completado
+    private static final String TEST_EMAIL = "tu_email_test@gmail.com";
+    private static final String TEST_PASSWORD = "tu_password_test";
+    private static final String CUSTOMER_NAME = "Cliente Test";
     
     @BeforeAll
     public static void setupClass() {

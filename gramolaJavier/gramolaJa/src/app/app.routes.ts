@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 import { Register } from './register/register';
 import { Login } from './login/login';
 import { CallbackComponent } from './callback/callback';

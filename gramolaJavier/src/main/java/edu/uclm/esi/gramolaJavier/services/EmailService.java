@@ -1,4 +1,4 @@
-package edu.uclm.esi.gramolaJavier.services;
+﻿package edu.uclm.esi.gramolaJavier.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +29,7 @@ public class EmailService {
         helper.setSubject("Confirma tu cuenta en Gramola");
         
         String htmlContent = """
-            <!DOCTYPE html>
+             <!DOCTYPE html>
             <html>
             <head>
                 <style>
@@ -43,7 +43,7 @@ public class EmailService {
             </head>
             <body>
                 <div class="container">
-                    <h1 class="header">🎵 Bienvenido a Gramola</h1>
+                    <h1 class="header">Bienvenido a Gramola</h1>
                     <p>Hola, <strong>%s</strong>!</p>
                     <p>Gracias por registrarte en Gramola. Para activar tu cuenta, haz clic en el siguiente botón:</p>
                     <div style="text-align: center;">
@@ -64,11 +64,11 @@ public class EmailService {
         
         mailSender.send(message);
         
-        System.out.println("✅ Correo de confirmación enviado a: " + toEmail);
-        System.out.println("🔗 URL de confirmación: " + confirmationUrl);
+        System.out.println("Correo de confirmación enviado a: " + toEmail);
+        System.out.println("URL de confirmación: " + confirmationUrl);
         
     } catch (Exception e) {
-        System.err.println("❌ Error al enviar correo a " + toEmail + ": " + e.getMessage());
+        System.err.println("Error al enviar correo a " + toEmail + ": " + e.getMessage());
         e.printStackTrace();
     }
 }
@@ -98,7 +98,7 @@ public class EmailService {
             "<body>" +
             "    <div class='container'>" +
             "        <div class='header'>" +
-            "            <h1>🎵 Gramola</h1>" +
+            "            <h1>Gramola</h1>" +
             "            <p>Sistema de Música Interactivo</p>" +
             "        </div>" +
             "        <div class='content'>" +
@@ -111,14 +111,14 @@ public class EmailService {
             "            <p>O copia y pega este enlace en tu navegador:</p>" +
             "            <p style='background: #f5f5f5; padding: 10px; border-radius: 5px; word-break: break-all; font-size: 12px;'>" + confirmationUrl + "</p>" +
             "            <div class='warning'>" +
-            "                <p>⏰ <strong>Importante:</strong> Este enlace expirará en 30 minutos.</p>" +
+            "                <p><strong>Importante:</strong> Este enlace expirará en 30 minutos.</p>" +
             "            </div>" +
             "            <p>Una vez confirmada tu cuenta, podrás:</p>" +
             "            <ul style='color: #666;'>" +
-            "                <li>🎵 Reproducir música ilimitada</li>" +
-            "                <li>🎸 Integrar tu cuenta de Spotify</li>" +
-            "                <li>📊 Ver estadísticas en tiempo real</li>" +
-            "                <li>🔧 Recibir soporte técnico 24/7</li>" +
+            "                <li>Reproducir música ilimitada</li>" +
+            "                <li>Integrar tu cuenta de Spotify</li>" +
+            "                <li>Ver estadísticas en tiempo real</li>" +
+            "                <li>Recibir soporte técnico 24/7</li>" +
             "            </ul>" +
             "            <p>Si no solicitaste esta cuenta, puedes ignorar este correo de forma segura.</p>" +
             "        </div>" +
@@ -156,7 +156,7 @@ public class EmailService {
                 </head>
                 <body>
                     <div class="container">
-                        <h1 class="header">🔐 Recuperación de Contraseña</h1>
+                        <h1 class="header">Recuperación de Contraseña</h1>
                         <p>Hola, <strong>%s</strong>!</p>
                         <p>Hemos recibido una solicitud para restablecer tu contraseña de Gramola.</p>
                         <p>Para crear una nueva contraseña, haz clic en el siguiente botón:</p>
@@ -164,7 +164,7 @@ public class EmailService {
                             <a href="%s" class="button">Restablecer mi Contraseña</a>
                         </div>
                         <div class="warning">
-                            <p>⏰ Este enlace expirará en <strong>24 horas</strong>.</p>
+                            <p>Este enlace expirará en <strong>24 horas</strong>.</p>
                         </div>
                         <p>Si no solicitaste este cambio, puedes ignorar este correo de forma segura. Tu contraseña no será modificada.</p>
                         <div class="footer">
@@ -180,11 +180,11 @@ public class EmailService {
             
             mailSender.send(message);
             
-            System.out.println("✅ Correo de recuperación enviado a: " + toEmail);
-            System.out.println("🔗 URL de recuperación: " + resetUrl);
+            System.out.println("Correo de recuperación enviado a: " + toEmail);
+            System.out.println("URL de recuperación: " + resetUrl);
             
         } catch (Exception e) {
-            System.err.println("❌ Error al enviar correo de recuperación a " + toEmail + ": " + e.getMessage());
+            System.err.println("Error al enviar correo de recuperación a " + toEmail + ": " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Error al enviar el correo de recuperación", e);
         }

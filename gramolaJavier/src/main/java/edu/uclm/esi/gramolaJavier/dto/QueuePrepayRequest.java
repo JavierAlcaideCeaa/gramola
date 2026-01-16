@@ -1,4 +1,4 @@
-package edu.uclm.esi.gramolaJavier.dto;
+﻿package edu.uclm.esi.gramolaJavier.dto;
 
 public class QueuePrepayRequest {
     private String customerName;  // Nombre de quien paga

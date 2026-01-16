@@ -1,4 +1,4 @@
-<div class="register-background">
+﻿<div class="register-background">
     <div class="register-container">
         <div class="register-card">
             <div class="card-header">
@@ -129,6 +129,31 @@
                         <div class="input-underline"></div>
                     </div>
                     <p class="field-help">🔒 Esta información se guardará de forma segura</p>
+                </div>
+
+                <!-- FIRMA DIGITAL -->
+                <div class="form-group">
+                    <label class="form-label">✍️ Firma del Propietario *</label>
+                    <div class="signature-container">
+                        <canvas 
+                            #signatureCanvas
+                            (mousedown)="startDrawing($event)"
+                            (mousemove)="draw($event)"
+                            (mouseup)="stopDrawing()"
+                            (mouseleave)="stopDrawing()"
+                            (touchstart)="startDrawing($event)"
+                            (touchmove)="draw($event)"
+                            (touchend)="stopDrawing()">
+                        </canvas>
+                        <button 
+                            type="button" 
+                            class="clear-signature-btn"
+                            (click)="clearSignature()">
+                            🗑️ Limpiar
+                        </button>
+                    </div>
+                    <p class="field-help" *ngIf="!signatureDrawn">📝 Firma en el recuadro para confirmar el registro</p>
+                    <p class="field-help success-text" *ngIf="signatureDrawn">✅ Firma capturada</p>
                 </div>
 
                 <!-- BOTÓN DE REGISTRO -->

@@ -1,4 +1,4 @@
-package edu.uclm.esi.gramolaJavier.models;
+﻿package edu.uclm.esi.gramolaJavier.models;
 
 import jakarta.persistence.*;
 import org.json.JSONObject;

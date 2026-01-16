@@ -1,4 +1,4 @@
-package edu.uclm.esi.gramolaJavier.services;
+﻿package edu.uclm.esi.gramolaJavier.services;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,8 +32,9 @@ public class UserService {
      * Registra un nuevo usuario (bar) en el sistema
      * @param latitude Latitud GPS (si se proporciona directamente)
      * @param longitude Longitud GPS (si se proporciona directamente)
+     * @param signature Firma digital del propietario (base64)
      */
-    public void register(String email, String pwd1, String pwd2, String barName, String clientId, String clientSecret, String address, Double latitude, Double longitude) {
+    public void register(String email, String pwd1, String pwd2, String barName, String clientId, String clientSecret, String address, Double latitude, Double longitude, String signature) {
         // ============================================
         // VALIDACIONES DE ENTRADA
         // ============================================
@@ -86,15 +87,15 @@ public class UserService {
             
             // ESCENARIO 2: Usuario existe pero NO confirmó → BORRAR y crear nuevo
             if (!user.isAccountConfirmed()) {
-                System.out.println("⚠️ Usuario " + email + " no confirmó su cuenta anterior.");
-                System.out.println("🗑️ Borrando cuenta antigua y creando nueva...");
+                System.out.println("AVISO: Usuario " + email + " no confirmó su cuenta anterior.");
+                System.out.println("Borrando cuenta antigua y creando nueva...");
                 this.userDao.delete(user);
             }
             
             // ESCENARIO 3: Usuario existe, confirmado pero NO pagó → BORRAR y crear nuevo
             else if (user.isAccountConfirmed() && !user.isPaymentConfirmed()) {
-                System.out.println("⚠️ Usuario " + email + " confirmó pero no pagó.");
-                System.out.println("🗑️ Borrando cuenta antigua y creando nueva...");
+                System.out.println("AVISO: Usuario " + email + " confirmó pero no pagó.");
+                System.out.println("Borrando cuenta antigua y creando nueva...");
                 this.userDao.delete(user);
             }
         }
@@ -112,16 +113,16 @@ public class UserService {
         
         if (latitude != null && longitude != null) {
             // Coordenadas GPS proporcionadas directamente
-            System.out.println("📍 Coordenadas GPS recibidas: " + latitude + ", " + longitude);
+            System.out.println("Coordenadas GPS recibidas: " + latitude + ", " + longitude);
         } else if (address != null && !address.trim().isEmpty()) {
             // Hacer geocoding de la dirección
             try {
                 double[] coords = geocodingService.getCoordinates(address);
                 latitude = coords[0];
                 longitude = coords[1];
-                System.out.println("📍 Coordenadas obtenidas por geocoding: " + latitude + ", " + longitude);
+                System.out.println("Coordenadas obtenidas por geocoding: " + latitude + ", " + longitude);
             } catch (Exception e) {
-                System.err.println("⚠️ No se pudieron obtener coordenadas para: " + address);
+                System.err.println("No se pudieron obtener coordenadas para: " + address);
                 // No lanzamos error, simplemente no guardamos coordenadas
             }
         }
@@ -129,9 +130,10 @@ public class UserService {
         // Crear usuario con dirección y coordenadas
         User newUser;
         if (address != null && !address.trim().isEmpty()) {
-            newUser = new User(email, pwd1, barName, clientId, clientSecret, token, address, latitude, longitude);
+            newUser = new User(email, pwd1, barName, clientId, clientSecret, token, address, latitude, longitude, signature);
         } else {
             newUser = new User(email, pwd1, barName, clientId, clientSecret, token);
+            newUser.setSignature(signature);
         }
         
         this.userDao.save(newUser);
@@ -145,8 +147,8 @@ public class UserService {
         // Enviar correo electrónico real
         this.emailService.sendConfirmationEmail(email, barName, confirmationUrl);
         
-        System.out.println("✅ Usuario registrado correctamente: " + email);
-        System.out.println("📧 Correo de confirmación enviado a: " + email);
+        System.out.println("Usuario registrado correctamente: " + email);
+        System.out.println("Correo de confirmación enviado a: " + email);
     }
     
     /**
@@ -183,9 +185,9 @@ public class UserService {
                 "Debe completar el pago para acceder a la gramola");
         }
         
-        System.out.println("✅ Login exitoso: " + email);
-        System.out.println("🏪 Bar: " + user.getBarName());
-        System.out.println("🎵 ClientId: " + user.getClientId());
+        System.out.println("Login exitoso: " + email);
+        System.out.println("Bar: " + user.getBarName());
+        System.out.println("ClientId: " + user.getClientId());
         
         // Crear respuesta con los datos necesarios para el frontend
         Map<String, String> response = new HashMap<>();
@@ -197,7 +199,13 @@ public class UserService {
         if (user.getLatitude() != null && user.getLongitude() != null) {
             response.put("latitude", String.valueOf(user.getLatitude()));
             response.put("longitude", String.valueOf(user.getLongitude()));
-            System.out.println("📍 Coordenadas: " + user.getLatitude() + ", " + user.getLongitude());
+            System.out.println("Coordenadas: " + user.getLatitude() + ", " + user.getLongitude());
+        }
+        
+        // Incluir firma si está disponible
+        if (user.getSignature() != null && !user.getSignature().isEmpty()) {
+            response.put("signature", user.getSignature());
+            System.out.println("Firma incluida en respuesta");
         }
         
         return response;
@@ -257,8 +265,8 @@ public class UserService {
         // Guardar cambios
         this.userDao.save(user);
         
-        System.out.println("✅ Cuenta confirmada: " + email);
-        System.out.println("🔀 Redirigiendo a página de pago...");
+        System.out.println("Cuenta confirmada: " + email);
+        System.out.println("Redirigiendo a página de pago...");
     }
     
     /**
@@ -274,7 +282,7 @@ public class UserService {
         User user = userOpt.get();
         this.userDao.delete(user);
         
-        System.out.println("🗑️ Usuario eliminado: " + email);
+        System.out.println("Usuario eliminado: " + email);
     }
     
     /**
@@ -333,7 +341,7 @@ public class UserService {
         // Enviar email de recuperación
         this.emailService.sendPasswordResetEmail(email, user.getBarName(), resetLink);
         
-        System.out.println("📧 Email de recuperación enviado a: " + email);
+        System.out.println("Email de recuperación enviado a: " + email);
     }
 
     /**
@@ -380,6 +388,6 @@ public class UserService {
         
         this.userDao.save(user);
         
-        System.out.println("✅ Contraseña restablecida para: " + email);
+        System.out.println("Contraseña restablecida para: " + email);
     }
 }

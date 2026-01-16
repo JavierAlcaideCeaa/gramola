@@ -1,4 +1,4 @@
-package edu.uclm.esi.gramolaJavier.models;
+﻿package edu.uclm.esi.gramolaJavier.models;
 
 import java.security.MessageDigest;
 import jakarta.persistence.*;
@@ -46,6 +46,9 @@ public class User {
     @Column
     private Double longitude; // Longitud (coordenada geográfica)
     
+    @Column(columnDefinition = "LONGTEXT")
+    private String signature; // Firma del dueño (imagen en base64)
+    
     public User() {}
     
     public User(String email, String password, String barName, String clientId, String clientSecret, Token token) {
@@ -64,6 +67,11 @@ public class User {
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+    
+    public User(String email, String password, String barName, String clientId, String clientSecret, Token token, String address, Double latitude, Double longitude, String signature) {
+        this(email, password, barName, clientId, clientSecret, token, address, latitude, longitude);
+        this.signature = signature;
     }
     
     // ✅ HACER PÚBLICO
@@ -122,4 +130,7 @@ public class User {
     
     public Double getLongitude() { return longitude; }
     public void setLongitude(Double longitude) { this.longitude = longitude; }
+    
+    public String getSignature() { return signature; }
+    public void setSignature(String signature) { this.signature = signature; }
 }

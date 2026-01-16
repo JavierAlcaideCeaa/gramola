@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+﻿import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { UserService, LoginResponse } from '../user';
@@ -80,6 +80,11 @@ export class Login implements OnInit {
         if (response.latitude && response.longitude) {
           sessionStorage.setItem('latitude', response.latitude);
           sessionStorage.setItem('longitude', response.longitude);
+        }
+        
+        // Guardar firma si está disponible
+        if (response.signature) {
+          sessionStorage.setItem('signature', response.signature);
         }
         
         console.log('💾 Datos guardados en sessionStorage:');

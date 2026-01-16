@@ -1,4 +1,4 @@
-package edu.uclm.esi.gramolaJavier.services;
+﻿package edu.uclm.esi.gramolaJavier.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,14 +30,14 @@ public class   SpotifyService {
     private String redirectUri;
 
     /**
-     * ✅ PRINCIPAL: Obtiene tokens de Spotify usando el código de autorización
+     * PRINCIPAL: Obtiene tokens de Spotify usando el código de autorización
      */
     public Map<String, Object> getAuthorizationToken(String code, String email) {
         System.out.println("═══════════════════════════════════");
-        System.out.println("🔄 INTERCAMBIANDO CÓDIGO POR TOKENS");
+        System.out.println("INTERCAMBIANDO CÓDIGO POR TOKENS");
         System.out.println("═══════════════════════════════════");
-        System.out.println("📧 Email: " + email);
-        System.out.println("🔑 Code (primeros 20): " + code.substring(0, Math.min(20, code.length())) + "...");
+        System.out.println("Email: " + email);
+        System.out.println("Code (primeros 20): " + code.substring(0, Math.min(20, code.length())) + "...");
 
         try {
             // 1️⃣ Buscar usuario
@@ -50,9 +50,9 @@ public class   SpotifyService {
             String clientId = user.getClientId();
             String clientSecret = user.getClientSecret();
 
-            System.out.println("🎵 Client ID: " + clientId);
-            System.out.println("🔐 Client Secret (primeros 10): " + clientSecret.substring(0, Math.min(10, clientSecret.length())) + "...");
-            System.out.println("🔗 Redirect URI: " + redirectUri);
+            System.out.println("Client ID: " + clientId);
+            System.out.println("Client Secret (primeros 10): " + clientSecret.substring(0, Math.min(10, clientSecret.length())) + "...");
+            System.out.println("Redirect URI: " + redirectUri);
 
             // 2️⃣ Preparar headers
             HttpHeaders headers = new HttpHeaders();
@@ -62,7 +62,7 @@ public class   SpotifyService {
             String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
             headers.set("Authorization", "Basic " + encodedCredentials);
 
-            System.out.println("🔑 Authorization Header: Basic " + encodedCredentials.substring(0, 20) + "...");
+            System.out.println("Authorization Header: Basic " + encodedCredentials.substring(0, 20) + "...");
 
             // 3️⃣ Preparar body
             String body = String.format(
@@ -79,8 +79,8 @@ public class   SpotifyService {
             HttpEntity<String> request = new HttpEntity<>(body, headers);
 
             // 4️⃣ Hacer petición a Spotify
-            System.out.println("📤 Enviando petición a Spotify...");
-            System.out.println("🔗 URL: https://accounts.spotify.com/api/token");
+            System.out.println("Enviando petición a Spotify...");
+            System.out.println("URL: https://accounts.spotify.com/api/token");
             
             ResponseEntity<String> response = restTemplate.exchange(
                 "https://accounts.spotify.com/api/token",
@@ -101,7 +101,7 @@ public class   SpotifyService {
             String refreshToken = json.getString("refresh_token");
             int expiresIn = json.getInt("expires_in");
 
-            System.out.println("✅ Tokens obtenidos exitosamente");
+            System.out.println("Tokens obtenidos exitosamente");
             System.out.println("   Access Token (primeros 20): " + accessToken.substring(0, 20) + "...");
             System.out.println("   Refresh Token (primeros 20): " + refreshToken.substring(0, 20) + "...");
             System.out.println("   Expira en: " + expiresIn + " segundos");
@@ -135,21 +135,21 @@ public class   SpotifyService {
             result.put("token_type", "Bearer");
 
             System.out.println("═══════════════════════════════════");
-            System.out.println("✅ PROCESO COMPLETADO EXITOSAMENTE");
+            System.out.println("PROCESO COMPLETADO EXITOSAMENTE");
             System.out.println("═══════════════════════════════════");
 
             return result;
 
         } catch (ResponseStatusException e) {
-            System.err.println("❌ ResponseStatusException: " + e.getReason());
+            System.err.println("ResponseStatusException: " + e.getReason());
             throw e;
             
         } catch (org.springframework.web.client.HttpClientErrorException e) {
             System.err.println("═══════════════════════════════════");
-            System.err.println("❌ ERROR DE SPOTIFY (HTTP 4XX)");
+            System.err.println("ERROR DE SPOTIFY (HTTP 4XX)");
             System.err.println("═══════════════════════════════════");
-            System.err.println("🔴 Status Code: " + e.getStatusCode());
-            System.err.println("🔴 Response Body: " + e.getResponseBodyAsString());
+            System.err.println("Status Code: " + e.getStatusCode());
+            System.err.println("Response Body: " + e.getResponseBodyAsString());
             System.err.println("═══════════════════════════════════");
             
             throw new ResponseStatusException(
@@ -159,10 +159,10 @@ public class   SpotifyService {
             
         } catch (Exception e) {
             System.err.println("═══════════════════════════════════");
-            System.err.println("❌ ERROR INESPERADO");
+            System.err.println("ERROR INESPERADO");
             System.err.println("═══════════════════════════════════");
-            System.err.println("🔴 Tipo: " + e.getClass().getName());
-            System.err.println("🔴 Mensaje: " + e.getMessage());
+            System.err.println("Tipo: " + e.getClass().getName());
+            System.err.println("Mensaje: " + e.getMessage());
             e.printStackTrace();
             System.err.println("═══════════════════════════════════");
             
