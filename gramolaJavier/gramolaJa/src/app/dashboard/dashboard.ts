@@ -38,6 +38,7 @@ interface PlayList {
   tracks: {
     total: number;
   };
+  uri: string;
 }
 
 interface TrackObject {
@@ -68,6 +69,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private router = inject(Router);
 
   private spotifyApiUrl = 'https://api.spotify.com/v1';
+  private backendUrl = 'http://127.0.0.1:8080';
 
   // DATOS DEL USUARIO
   accessToken: string = '';
@@ -108,6 +110,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // QUEUE PAYMENT SYSTEM
   showQueuePaymentModal: boolean = false;
   selectedTrackForQueue: SpotifyTrack | null = null;
+  selectedPriceForQueue: number = 299; // Precio preseleccionado
+
+  // PASSWORD MODAL
+  showPasswordModal: boolean = false;
+  passwordInput: string = '';
+  pendingPlaylist: PlayList | null = null;
 
   // UI
   loading: boolean = true;
@@ -116,6 +124,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Subscriptions
   private playbackSubscription?: Subscription;
+  private queueSubscription?: Subscription;
 
   // ==========================================
   // INICIALIZACIÓN
@@ -166,6 +175,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     console.log('👋 Dashboard destruido - Limpiando subscripciones');
     this.playbackSubscription?.unsubscribe();
+    this.queueSubscription?.unsubscribe();
   }
 
   initializeDashboard() {
@@ -176,6 +186,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.getCurrentPlayList();
     this.loadPlaybackState();
     this.startPlaybackPolling();
+    this.startQueuePolling();
 
     this.loading = false;
     console.log('✅ Dashboard inicializado correctamente');
@@ -327,35 +338,44 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getCurrentPlayList() {
-    if (!this.selectedPlaylist) {
-      console.log('ℹ️ No hay playlist seleccionada');
-      return;
-    }
-
-    console.log('🎵 Cargando cola de reproducción de:', this.selectedPlaylist.name);
+    console.log('🎵 Cargando cola de reproducción de Spotify...');
     this.resetErrors();
     
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.accessToken}`
     });
-
-    const playlistId = this.selectedPlaylist.id;
     
-    this.http.get<{ items: TrackObject[] }>(
-      `${this.spotifyApiUrl}/playlists/${playlistId}/tracks`,
+    // Obtener la cola actual de Spotify (no la playlist)
+    this.http.get<{ queue: SpotifyTrack[] }>(
+      `${this.spotifyApiUrl}/me/player/queue`,
       { headers }
     ).subscribe({
       next: (response) => {
-        this.queue = response.items;
-        console.log('✅ Cola cargada:', this.queue.length, 'canciones');
-        console.log('🎵 Primeras canciones:');
-        this.queue.slice(0, 3).forEach((item, i) => {
-          console.log(`  ${i + 1}. ${item.track.name} - ${item.track.artists[0].name}`);
-        });
+        // Convertir las canciones de la cola al formato TrackObject
+        if (response.queue && response.queue.length > 0) {
+          this.queue = response.queue.map(track => ({
+            track: track,
+            added_at: new Date().toISOString()
+          }));
+          console.log('✅ Cola de Spotify cargada:', this.queue.length, 'canciones');
+          console.log('🎵 Primeras canciones en cola:');
+          this.queue.slice(0, 3).forEach((item, i) => {
+            console.log(`  ${i + 1}. ${item.track.name} - ${item.track.artists[0].name}`);
+          });
+        } else {
+          this.queue = [];
+          console.log('ℹ️ La cola está vacía');
+        }
       },
       error: (err) => {
-        console.error('❌ Error al cargar cola:', err);
-        this.currentPlaylistError = 'Error al cargar la playlist actual';
+        // Si no hay cola activa o error 404, simplemente vaciar
+        if (err.status === 404) {
+          console.log('ℹ️ No hay cola activa en Spotify');
+          this.queue = [];
+        } else {
+          console.error('❌ Error al cargar cola:', err);
+          this.currentPlaylistError = 'Error al cargar la cola actual';
+        }
       }
     });
   }
@@ -365,11 +385,64 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.selectedPlaylist = playlist;
     this.getCurrentPlayList();
     
-    if (this.selectedDevice) {
+    // Auto-reproducir si hay dispositivo seleccionado
+    if (this.selectedDevice && playlist.uri) {
       this.playPlaylist(playlist);
-    } else {
-      console.warn('⚠️ No hay dispositivo activo para reproducir');
     }
+  }
+
+  requestPasswordAndSelectPlaylist(playlist: PlayList) {
+    // Guardar la playlist pendiente y mostrar el modal
+    this.pendingPlaylist = playlist;
+    this.passwordInput = '';
+    this.showPasswordModal = true;
+  }
+
+  cancelPasswordPrompt() {
+    this.showPasswordModal = false;
+    this.passwordInput = '';
+    this.pendingPlaylist = null;
+  }
+
+  confirmPasswordPrompt() {
+    if (!this.passwordInput) {
+      alert('⚠️ Por favor introduce una contraseña');
+      return;
+    }
+
+    if (!this.pendingPlaylist) {
+      this.cancelPasswordPrompt();
+      return;
+    }
+
+    const email = sessionStorage.getItem('userEmail');
+    if (!email) {
+      alert('⚠️ No se encontró el email del usuario');
+      this.cancelPasswordPrompt();
+      return;
+    }
+
+    console.log('🔐 Verificando contraseña...');
+
+    // Verificar la contraseña con el backend
+    this.http.post(`${this.backendUrl}/user/verifyPassword`, 
+      { email, password: this.passwordInput },
+      { withCredentials: true, responseType: 'text' }
+    ).subscribe({
+      next: (response) => {
+        console.log('✅ Contraseña correcta');
+        const playlistToSelect = this.pendingPlaylist;
+        this.cancelPasswordPrompt();
+        if (playlistToSelect) {
+          this.selectPlaylist(playlistToSelect);
+        }
+      },
+      error: (err) => {
+        console.error('❌ Contraseña incorrecta:', err);
+        alert('❌ Contraseña incorrecta. Solo el dueño del bar puede cambiar la playlist.');
+        this.passwordInput = '';
+      }
+    });
   }
 
   playPlaylist(playlist: PlayList) {
@@ -451,6 +524,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  startQueuePolling() {
+    console.log('⏰ Iniciando polling de cola cada 1 segundo');
+    this.queueSubscription = interval(1000).subscribe(() => {
+      // Siempre actualizar la cola real de Spotify, no depende de selectedPlaylist
+      this.getCurrentPlayList();
+    });
+  }
+
   // ==========================================
   // BÚSQUEDA DE CANCIONES
   // ==========================================
@@ -514,6 +595,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  openSearch() {
+    this.showSearch = true;
+    setTimeout(() => {
+      const titleInput = document.querySelector('.search-input') as HTMLInputElement;
+      if (titleInput) titleInput.focus();
+    }, 100);
+  }
+
+  closeSearch() {
+    this.showSearch = false;
+    this.clearSearch();
+  }
+
+  clearSearch() {
+    this.titleFilter = '';
+    this.artistFilter = '';
+    this.searchResults = [];
+    this.songError = '';
+  }
+
   addToQueue(track: SpotifyTrack) {
     if (!this.selectedDevice) {
       alert('⚠️ Selecciona un dispositivo primero');
@@ -530,21 +631,52 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.http.post(
       `${this.spotifyApiUrl}/me/player/queue?uri=${encodeURIComponent(track.uri)}&device_id=${deviceId}`,
-      {},
-      { headers }
+      null,
+      { 
+        headers, 
+        observe: 'response',
+        responseType: 'text'
+      }
     ).subscribe({
-      next: () => {
-        console.log('✅ Canción añadida a la cola');
-        alert(`✅ "${track.name}" añadida a la cola`);
+      next: (response: any) => {
+        console.log('✅ Canción añadida a la cola - Status:', response.status);
         
         this.queue.push({
           track: track,
           added_at: new Date().toISOString()
         });
+        
+        // Actualizar cola inmediatamente
+        if (this.selectedPlaylist) {
+          setTimeout(() => this.getCurrentPlayList(), 500);
+        }
+        
+        // Cerrar modal de búsqueda si está abierto
+        if (this.showSearch) {
+          this.showSearch = false;
+        }
       },
       error: (err) => {
-        console.error('❌ Error al añadir a la cola:', err);
-        alert('❌ Error al añadir canción a la cola');
+        // 204 No Content es ÉXITO en Spotify API
+        if (err.status === 204 || err.status === 0) {
+          console.log('✅ Canción añadida a la cola (204 No Content)');
+          
+          this.queue.push({
+            track: track,
+            added_at: new Date().toISOString()
+          });
+          
+          // Actualizar cola inmediatamente
+          setTimeout(() => this.getCurrentPlayList(), 500);
+          
+          // Cerrar modal de búsqueda si está abierto
+          if (this.showSearch) {
+            this.showSearch = false;
+          }
+        } else {
+          console.error('❌ Error real al añadir a la cola:', err);
+          alert(`❌ Error al añadir canción: ${err.message || 'Error desconocido'}`);
+        }
       }
     });
   }
@@ -590,14 +722,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // QUEUE PAYMENT SYSTEM
   // ==========================================
 
-  openQueuePaymentModal(track: SpotifyTrack) {
+  openQueuePaymentModal(track: SpotifyTrack, price: number = 299) {
     if (!this.selectedDevice) {
       alert('⚠️ Selecciona un dispositivo primero');
       return;
     }
 
     console.log('💳 Abriendo modal de pago para:', track.name);
+    console.log('💰 Precio preseleccionado:', price === 199 ? '1.99€ (Adelantar)' : '2.99€ (Nueva)');
     this.selectedTrackForQueue = track;
+    this.selectedPriceForQueue = price;
     this.showQueuePaymentModal = true;
   }
 

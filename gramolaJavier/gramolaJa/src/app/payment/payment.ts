@@ -24,6 +24,11 @@ export class PaymentComponent implements OnInit {
   token: string = '';
   email: string = '';
   loading: boolean = false;
+  selectedSubscription: string = 'monthly'; // 'monthly' o 'annual'
+  prices: any = {
+    monthly: { amount: 29.99, label: 'Mensual' },
+    annual: { amount: 299, label: 'Anual' }
+  };
 
   ngOnInit(): void {
     // ✅ Obtener AMBOS parámetros de la URL
@@ -39,12 +44,40 @@ export class PaymentComponent implements OnInit {
         this.router.navigate(['/register']);
       }
     });
+    
+    // Cargar precios desde BD
+    this.loadPrices();
+  }
+  
+  loadPrices() {
+    this.http.get('http://127.0.0.1:8080/payments/prices', {
+      withCredentials: true
+    }).subscribe({
+      next: (response: any) => {
+        console.log('💰 Precios desde BD:', response);
+        
+        // Mapear precios si vienen de BD
+        if (Array.isArray(response) && response.length > 0) {
+          response.forEach((price: any) => {
+            const euros = price.priceCents / 100;
+            if (price.description?.toLowerCase().includes('mensual')) {
+              this.prices.monthly.amount = euros;
+            } else if (price.description?.toLowerCase().includes('anual')) {
+              this.prices.annual.amount = euros;
+            }
+          });
+        }
+      },
+      error: (err) => {
+        console.warn('⚠️ No se pudieron cargar precios de BD, usando valores por defecto:', err);
+      }
+    });
   }
 
     prepay() {
       this.loading = true;
       
-      this.http.get('http://127.0.0.1:8080/payments/prepay', {  // ✅ CAMBIAR
+      this.http.get(`http://127.0.0.1:8080/payments/prepay?subscriptionType=${this.selectedSubscription}`, {
         withCredentials: true 
       }).subscribe({
       next: (response: any) => {
@@ -134,18 +167,21 @@ export class PaymentComponent implements OnInit {
         if (response.paymentIntent.status === 'succeeded') {
           console.log('✅ Pago exitoso en Stripe');
           
-          // ✅ Enviar EMAIL y TOKEN al backend
+          // ✅ Enviar EMAIL, TOKEN y SUBSCRIPTION TYPE al backend
           self.http.post('http://127.0.0.1:8080/payments/confirm', {
             paymentIntent: response.paymentIntent,
             transactionId: self.transactionDetails.id,
-            token: self.token,  // ✅ Ahora sí existe
-            email: self.email   // ✅ Ahora sí existe
+            token: self.token,
+            email: self.email,
+            subscriptionType: self.selectedSubscription
           }, { 
             withCredentials: true 
           }).subscribe({
             next: () => {
+              const subscriptionLabel = self.selectedSubscription === 'annual' ? 'anual' : 'mensual';
               alert('✅ ¡Pago Exitoso!\n\n' +
-                    'Tu cuenta ha sido activada.\n\n' +
+                    'Tu cuenta ha sido activada.\n' +
+                    'Suscripción: ' + subscriptionLabel + '\n\n' +
                     'Ya puedes iniciar sesión y disfrutar de tu gramola.');
               
               self.router.navigate(['/login'], {

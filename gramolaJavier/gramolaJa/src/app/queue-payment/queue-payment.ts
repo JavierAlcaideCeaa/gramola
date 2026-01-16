@@ -15,13 +15,14 @@ declare var Stripe: any;
 export class QueuePaymentComponent implements OnInit {
   @Input() track: any;
   @Input() deviceId: string = '';
+  @Input() initialPrice: number = 299; // Precio inicial desde el componente padre
   @Output() close = new EventEmitter<void>();
   
   private backendUrl = 'http://127.0.0.1:8080';
   private stripe = Stripe("pk_test_51RJHbY00mVaZlVqdS1kfaMj7rlz9TTJsPIdv8YFu4qXTRdeCvr0Qmt3WfC3r0AmPNcgPcs8q3Y5p1kjRXPZZOOXk00SxO09d8M");
   
-  email: string = '';
-  selectedPrice: number = 199; // Standard por defecto
+  customerName: string = '';  // Nombre de quien paga
+  selectedPrice: number = 299;
   loading: boolean = false;
   showStripeForm: boolean = false;
   clientSecret: string = '';
@@ -31,10 +32,11 @@ export class QueuePaymentComponent implements OnInit {
   constructor(private http: HttpClient) {}
   
   ngOnInit() {
-    this.email = sessionStorage.getItem('userEmail') || '';
+    this.selectedPrice = this.initialPrice;
     console.log('💳 Queue Payment Modal abierto');
     console.log('🎵 Track:', this.track?.name);
     console.log('📱 Device:', this.deviceId);
+    console.log('💰 Precio inicial:', this.selectedPrice === 199 ? '1.99€ (Adelantar)' : '2.99€ (Nueva)');
   }
   
   async processPayment() {
@@ -47,6 +49,11 @@ export class QueuePaymentComponent implements OnInit {
       return;
     }
     
+    if (!this.customerName || this.customerName.trim().length < 2) {
+      alert('⚠️ Por favor ingresa tu nombre');
+      return;
+    }
+    
     const accessToken = sessionStorage.getItem('spotify_access_token');
     if (!accessToken) {
       alert('⚠️ No hay token de Spotify');
@@ -56,9 +63,12 @@ export class QueuePaymentComponent implements OnInit {
     this.loading = true;
     
     const payload = {
-      email: this.email,
+      customerName: this.customerName.trim(),
       accessToken: accessToken,
       trackUri: this.track.uri,
+      trackName: this.track.name,
+      artistName: this.track.artists[0]?.name || 'Unknown',
+      albumName: this.track.album?.name || '',
       deviceId: this.deviceId,
       priceCode: this.selectedPrice
     };
@@ -67,10 +77,13 @@ export class QueuePaymentComponent implements OnInit {
     
     try {
       // 1. Preparar pago
-      const clientSecret = await this.http.post<string>(
+      const clientSecret = await this.http.post(
         `${this.backendUrl}/queue/prepay`,
         payload,
-        { withCredentials: true }
+        { 
+          withCredentials: true,
+          responseType: 'text'
+        }
       ).toPromise();
       
       if (!clientSecret) {
@@ -100,6 +113,7 @@ export class QueuePaymentComponent implements OnInit {
     const elements = this.stripe.elements();
     
     this.cardElement = elements.create('card', {
+      hidePostalCode: true, // Ocultar código postal
       style: {
         base: {
           fontSize: '16px',

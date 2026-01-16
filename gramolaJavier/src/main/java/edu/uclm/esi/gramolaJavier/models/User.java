@@ -31,6 +31,12 @@ public class User {
     @Column(nullable = false)
     private boolean paymentConfirmed = false;
     
+    @Column
+    private String subscriptionType; // "monthly" o "annual"
+    
+    @Column
+    private Long subscriptionExpirationDate; // timestamp en milisegundos
+    
     public User() {}
     
     public User(String email, String password, String barName, String clientId, String clientSecret, Token token) {
@@ -85,4 +91,10 @@ public class User {
     
     public boolean isPaymentConfirmed() { return paymentConfirmed; }
     public void setPaymentConfirmed(boolean paymentConfirmed) { this.paymentConfirmed = paymentConfirmed; }
+    
+    public String getSubscriptionType() { return subscriptionType; }
+    public void setSubscriptionType(String subscriptionType) { this.subscriptionType = subscriptionType; }
+    
+    public Long getSubscriptionExpirationDate() { return subscriptionExpirationDate; }
+    public void setSubscriptionExpirationDate(Long subscriptionExpirationDate) { this.subscriptionExpirationDate = subscriptionExpirationDate; }
 }

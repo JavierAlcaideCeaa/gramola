@@ -238,4 +238,100 @@ public class UserService {
         
         System.out.println("🗑️ Usuario eliminado: " + email);
     }
+
+    /**
+     * Verifica si la contraseña proporcionada es correcta para el usuario
+     * @return true si la contraseña es correcta, false en caso contrario
+     */
+    public boolean verifyPassword(String email, String password) {
+        // Buscar usuario
+        Optional<User> userOpt = this.userDao.findById(email);
+        if (userOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                "El usuario no existe");
+        }
+        
+        User user = userOpt.get();
+        
+        // Encriptar la contraseña proporcionada
+        String encryptedInputPassword = user.encryptPassword(password);
+        
+        // Comparar con la contraseña almacenada
+        return user.getPassword().equals(encryptedInputPassword);
+    }
+
+    /**
+     * Solicita restablecimiento de contraseña (envía email con token)
+     */
+    public void requestPasswordReset(String email) {
+        // Buscar usuario
+        Optional<User> userOpt = this.userDao.findById(email);
+        if (userOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                "El usuario no existe");
+        }
+        
+        User user = userOpt.get();
+        
+        // Crear token de recuperación
+        Token resetToken = new Token();
+        user.setToken(resetToken);
+        this.userDao.save(user);
+        
+        // Construir enlace de recuperación
+        String resetLink = "http://127.0.0.1:4200/reset-password?email=" + 
+                          email + "&token=" + resetToken.getId();
+        
+        // Enviar email de recuperación
+        this.emailService.sendPasswordResetEmail(email, user.getBarName(), resetLink);
+        
+        System.out.println("📧 Email de recuperación enviado a: " + email);
+    }
+
+    /**
+     * Restablece la contraseña usando el token
+     */
+    public void resetPassword(String email, String tokenId, String newPassword) {
+        // Buscar usuario
+        Optional<User> userOpt = this.userDao.findById(email);
+        if (userOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                "El usuario no existe");
+        }
+        
+        User user = userOpt.get();
+        Token token = user.getToken();
+        
+        // Verificar que el token existe y coincide
+        if (token == null || !token.getId().equals(tokenId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Token inválido");
+        }
+        
+        // Verificar que el token no ha sido usado
+        if (token.isUsed()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Token ya utilizado");
+        }
+        
+        // Verificar que el token no ha expirado (24 horas)
+        long tokenAge = System.currentTimeMillis() - token.getCreationTime();
+        long maxAge = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
+        
+        if (tokenAge > maxAge) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Token expirado. Solicita un nuevo enlace de recuperación.");
+        }
+        
+        // Actualizar contraseña
+        String encryptedPassword = user.encryptPassword(newPassword);
+        user.setPassword(encryptedPassword);
+        
+        // Marcar token como usado
+        token.Use();
+        
+        this.userDao.save(user);
+        
+        System.out.println("✅ Contraseña restablecida para: " + email);
+    }
 }

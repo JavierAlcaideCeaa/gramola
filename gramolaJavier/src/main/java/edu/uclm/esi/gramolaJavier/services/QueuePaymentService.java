@@ -15,6 +15,7 @@ import edu.uclm.esi.gramolaJavier.models.Price;
 import edu.uclm.esi.gramolaJavier.models.QueuePaymentTransaction;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class QueuePaymentService {
@@ -39,9 +40,10 @@ public class QueuePaymentService {
         System.out.println("═══════════════════════════════════");
         System.out.println("💳 PREPARANDO PAGO DE ENCOLAMIENTO");
         System.out.println("═══════════════════════════════════");
-        System.out.println("📧 Email: " + request.getEmail());
+        System.out.println("� Nombre cliente: " + request.getCustomerName());
         System.out.println("💰 Price Code: " + request.getPriceCode());
-        System.out.println("🎵 Track URI: " + request.getTrackUri());
+        System.out.println("🎵 Track: " + request.getTrackName());
+        System.out.println("🎤 Artista: " + request.getArtistName());
         System.out.println("📱 Device ID: " + request.getDeviceId());
         
         // Validar precio
@@ -53,13 +55,23 @@ public class QueuePaymentService {
         
         System.out.println("✅ Precio válido: " + price.getEuros() + "€");
         
+        // Obtener email del bar desde sesión
+        String barEmail = (String) session.getAttribute("email");
+        if (barEmail == null) {
+            throw new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED,
+                "No hay sesión activa. Debe iniciar sesión primero."
+            );
+        }
+        
         try {
             // Crear PaymentIntent
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                 .setAmount(price.getPriceCents())
                 .setCurrency(price.getCurrency())
-                .setDescription("Encolador de canciones - " + request.getEmail())
-                .putMetadata("email", request.getEmail())
+                .setDescription("Encolamiento: " + request.getTrackName() + " - " + request.getCustomerName())
+                .putMetadata("customerName", request.getCustomerName())
+                .putMetadata("barEmail", barEmail)
                 .putMetadata("trackUri", request.getTrackUri())
                 .putMetadata("deviceId", request.getDeviceId())
                 .build();
@@ -68,17 +80,25 @@ public class QueuePaymentService {
             
             System.out.println("✅ PaymentIntent creado: " + paymentIntent.getId());
             
-            // Guardar transacción
+            // Guardar transacción con información completa
             QueuePaymentTransaction transaction = new QueuePaymentTransaction(
-                request.getEmail(),
+                barEmail,  // Email del bar
                 paymentIntent.getId(),
                 request.getTrackUri(),
+                request.getTrackName(),
+                request.getArtistName(),
+                request.getAlbumName(),
+                request.getCustomerName(),  // Nombre del cliente
                 request.getDeviceId(),
                 price.getPriceCents()
             );
             queuePaymentTransactionDao.save(transaction);
             
-            System.out.println("💾 Transacción guardada en BD");
+            System.out.println("💾 Transacción guardada en BD:");
+            System.out.println("   🎵 Canción: " + request.getTrackName());
+            System.out.println("   🎤 Artista: " + request.getArtistName());
+            System.out.println("   💿 Álbum: " + request.getAlbumName());
+            System.out.println("   👤 Cliente: " + request.getCustomerName());
             
             // Guardar datos en sesión
             session.setAttribute("queuePaymentIntentId", paymentIntent.getId());
@@ -192,5 +212,27 @@ public class QueuePaymentService {
         System.out.println("═══════════════════════════════════");
         System.out.println("✅ CANCIÓN ENCOLADA EXITOSAMENTE");
         System.out.println("═══════════════════════════════════");
+    }
+    
+    /**
+     * Obtiene el historial de canciones pagadas por un usuario
+     */
+    public List<QueuePaymentTransaction> getHistoryByEmail(String email) {
+        return queuePaymentTransactionDao.findByEmailAndStatus(email, "completed");
+    }
+    
+    /**
+     * Obtiene todas las transacciones completadas
+     */
+    public List<QueuePaymentTransaction> getAllCompleted() {
+        List<QueuePaymentTransaction> allTransactions = queuePaymentTransactionDao.findAll();
+        return allTransactions.stream()
+            .filter(t -> "completed".equals(t.getStatus()))
+            .sorted((a, b) -> {
+                if (a.getCompletedAt() == null) return 1;
+                if (b.getCompletedAt() == null) return -1;
+                return b.getCompletedAt().compareTo(a.getCompletedAt());
+            })
+            .toList();
     }
 }

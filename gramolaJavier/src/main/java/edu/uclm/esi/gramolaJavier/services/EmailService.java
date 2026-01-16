@@ -130,4 +130,63 @@ public class EmailService {
             "</body>" +
             "</html>";
     }
+
+    public void sendPasswordResetEmail(String toEmail, String barName, String resetUrl) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail, fromName);
+            helper.setTo(toEmail);
+            helper.setSubject("Recuperación de Contraseña - Gramola");
+            
+            String htmlContent = """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+                        .container { background-color: white; padding: 30px; border-radius: 10px; max-width: 600px; margin: 0 auto; }
+                        .header { text-align: center; color: #667eea; }
+                        .button { display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #667eea, #764ba2); 
+                                 color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+                        .footer { text-align: center; color: #999; font-size: 12px; margin-top: 30px; }
+                        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h1 class="header">🔐 Recuperación de Contraseña</h1>
+                        <p>Hola, <strong>%s</strong>!</p>
+                        <p>Hemos recibido una solicitud para restablecer tu contraseña de Gramola.</p>
+                        <p>Para crear una nueva contraseña, haz clic en el siguiente botón:</p>
+                        <div style="text-align: center;">
+                            <a href="%s" class="button">Restablecer mi Contraseña</a>
+                        </div>
+                        <div class="warning">
+                            <p>⏰ Este enlace expirará en <strong>24 horas</strong>.</p>
+                        </div>
+                        <p>Si no solicitaste este cambio, puedes ignorar este correo de forma segura. Tu contraseña no será modificada.</p>
+                        <div class="footer">
+                            <p>Este es un correo automático, por favor no respondas.</p>
+                            <p>&copy; 2026 Gramola - Sistema de Música Interactiva</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """.formatted(barName, resetUrl);
+            
+            helper.setText(htmlContent, true);
+            
+            mailSender.send(message);
+            
+            System.out.println("✅ Correo de recuperación enviado a: " + toEmail);
+            System.out.println("🔗 URL de recuperación: " + resetUrl);
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error al enviar correo de recuperación a " + toEmail + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error al enviar el correo de recuperación", e);
+        }
+    }
 }

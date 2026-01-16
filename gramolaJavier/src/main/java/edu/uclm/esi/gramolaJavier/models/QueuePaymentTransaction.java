@@ -21,6 +21,18 @@ public class QueuePaymentTransaction {
     private String trackUri;
     
     @Column(nullable = false)
+    private String trackName;
+    
+    @Column(nullable = false)
+    private String artistName;
+    
+    @Column
+    private String albumName;
+    
+    @Column(nullable = false)
+    private String customerName;  // Nombre de quien paga la canción
+    
+    @Column(nullable = false)
     private String deviceId;
     
     @Column(nullable = false)
@@ -37,10 +49,15 @@ public class QueuePaymentTransaction {
     public QueuePaymentTransaction() {}
     
     public QueuePaymentTransaction(String email, String paymentIntentId, String trackUri, 
-                                   String deviceId, Long priceCents) {
+                                   String trackName, String artistName, String albumName,
+                                   String customerName, String deviceId, Long priceCents) {
         this.email = email;
         this.paymentIntentId = paymentIntentId;
         this.trackUri = trackUri;
+        this.trackName = trackName;
+        this.artistName = artistName;
+        this.albumName = albumName;
+        this.customerName = customerName;
         this.deviceId = deviceId;
         this.priceCents = priceCents;
     }
@@ -59,6 +76,18 @@ public class QueuePaymentTransaction {
     
     public String getTrackUri() { return trackUri; }
     public void setTrackUri(String trackUri) { this.trackUri = trackUri; }
+    
+    public String getTrackName() { return trackName; }
+    public void setTrackName(String trackName) { this.trackName = trackName; }
+    
+    public String getArtistName() { return artistName; }
+    public void setArtistName(String artistName) { this.artistName = artistName; }
+    
+    public String getAlbumName() { return albumName; }
+    public void setAlbumName(String albumName) { this.albumName = albumName; }
+    
+    public String getCustomerName() { return customerName; }
+    public void setCustomerName(String customerName) { this.customerName = customerName; }
     
     public String getDeviceId() { return deviceId; }
     public void setDeviceId(String deviceId) { this.deviceId = deviceId; }

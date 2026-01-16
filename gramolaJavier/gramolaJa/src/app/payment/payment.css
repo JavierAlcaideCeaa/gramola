@@ -123,6 +123,87 @@
     border-bottom: none;
 }
 
+/* TARJETAS DE SUSCRIPCIÓN */
+.subscription-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.subscription-card {
+    background: white;
+    border: 3px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.subscription-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.subscription-card.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    box-shadow: 0 10px 30px -5px rgba(102, 126, 234, 0.3);
+}
+
+.subscription-badge {
+    position: absolute;
+    top: 15px;
+    right: -30px;
+    background: #48bb78;
+    color: white;
+    padding: 5px 35px;
+    font-size: 12px;
+    font-weight: 600;
+    transform: rotate(45deg);
+}
+
+.subscription-badge.savings {
+    background: #f6ad55;
+}
+
+.subscription-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 15px 0 10px;
+}
+
+.subscription-price {
+    font-size: 42px;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 5px;
+}
+
+.subscription-period {
+    font-size: 16px;
+    color: #718096;
+    margin-bottom: 20px;
+}
+
+.subscription-features {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0;
+    text-align: left;
+}
+
+.subscription-features li {
+    padding: 8px 0;
+    color: #4a5568;
+    font-size: 14px;
+    border-bottom: none;
+}
+
 .payment-button {
     width: 100%;
     padding: 18px;
@@ -210,7 +291,19 @@
     .price-amount {
         font-size: 36px;
     }
-    /* ...existing code... */
+    
+    .subscription-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .subscription-card {
+        padding: 25px 15px;
+    }
+    
+    .subscription-price {
+        font-size: 36px;
+    }
+}
 
 /* FORMULARIO DE STRIPE */
 #payment-form {
@@ -238,5 +331,3 @@
     min-height: 20px;
 }
 
-
-}

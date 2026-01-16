@@ -59,7 +59,8 @@ public class userController {
         Map<String, String> userData = this.service.login(email, pwd);
         
         // Guardar email en sesión para uso posterior
-        session.setAttribute("userEmail", email);
+        session.setAttribute("email", email);  // Cambiar "userEmail" a "email"
+        session.setAttribute("userEmail", email);  // Mantener por compatibilidad
         
         System.out.println("🔐 Sesión creada para: " + email);
         
@@ -94,6 +95,78 @@ public class userController {
             String errorUrl = "http://127.0.0.1:4200/register?error=" + 
                             e.getReason().replace(" ", "+");
             response.sendRedirect(errorUrl);
+        }
+    }
+
+    @PostMapping("/verifyPassword")
+    public ResponseEntity<String> verifyPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String password = body.get("password");
+        
+        System.out.println("🔐 Verificando contraseña para: " + email);
+        
+        try {
+            boolean isValid = this.service.verifyPassword(email, password);
+            if (isValid) {
+                System.out.println("✅ Contraseña correcta");
+                return ResponseEntity.ok("Password válido");
+            } else {
+                System.out.println("❌ Contraseña incorrecta");
+                throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Contraseña incorrecta"
+                );
+            }
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            System.err.println("❌ Error al verificar contraseña: " + e.getMessage());
+            throw new ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Error al verificar contraseña"
+            );
+        }
+    }
+
+    @PostMapping("/requestPasswordReset")
+    public ResponseEntity<String> requestPasswordReset(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        
+        System.out.println("📧 Solicitud de recuperación de contraseña para: " + email);
+        
+        try {
+            this.service.requestPasswordReset(email);
+            return ResponseEntity.ok("Email de recuperación enviado");
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            System.err.println("❌ Error al solicitar recuperación: " + e.getMessage());
+            throw new ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Error al enviar email de recuperación"
+            );
+        }
+    }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String token = body.get("token");
+        String newPassword = body.get("newPassword");
+        
+        System.out.println("🔑 Restableciendo contraseña para: " + email);
+        
+        try {
+            this.service.resetPassword(email, token, newPassword);
+            return ResponseEntity.ok("Contraseña restablecida exitosamente");
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            System.err.println("❌ Error al restablecer contraseña: " + e.getMessage());
+            throw new ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Error al restablecer contraseña"
+            );
         }
     }
 

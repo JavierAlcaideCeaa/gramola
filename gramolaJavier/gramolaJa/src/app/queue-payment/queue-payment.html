@@ -16,31 +16,23 @@
       </div>
     </div>
     
-    <!-- Email (readonly) -->
-    <div class="form-group">
-      <label>📧 Email</label>
-      <input type="email" [value]="email" readonly class="readonly-input">
+    <!-- Nombre del cliente -->
+    <div class="form-group" *ngIf="!showStripeForm">
+      <label>👤 Tu Nombre</label>
+      <input 
+        type="text" 
+        [(ngModel)]="customerName" 
+        placeholder="Ingresa tu nombre"
+        maxlength="50"
+        class="name-input">
     </div>
     
-    <!-- Selección de Precio -->
-    <div class="price-selection" *ngIf="!showStripeForm">
-      <h3>💰 Selecciona un Precio</h3>
-      
-      <label class="price-option" [class.selected]="selectedPrice === 199">
-        <input type="radio" name="price" [value]="199" [(ngModel)]="selectedPrice">
-        <div class="price-card">
-          <span class="price-amount">1.99€</span>
-          <span class="price-label">Standard</span>
-        </div>
-      </label>
-      
-      <label class="price-option" [class.selected]="selectedPrice === 299">
-        <input type="radio" name="price" [value]="299" [(ngModel)]="selectedPrice">
-        <div class="price-card">
-          <span class="price-amount">2.99€</span>
-          <span class="price-label">Premium</span>
-        </div>
-      </label>
+    <!-- Precio Fijo -->
+    <div class="price-display" *ngIf="!showStripeForm">
+      <div class="price-card-fixed">
+        <span class="price-amount">{{ selectedPrice === 199 ? '1.99€' : '2.99€' }}</span>
+        <span class="price-label">{{ selectedPrice === 199 ? '⚡ Adelantar en la cola' : '🎵 Añadir canción nueva' }}</span>
+      </div>
     </div>
     
     <!-- Botón de Pago Inicial -->
@@ -49,7 +41,7 @@
       class="pay-btn" 
       (click)="processPayment()"
       [disabled]="loading">
-      {{ loading ? '⏳ Preparando...' : '💳 Continuar al Pago' }}
+      {{ loading ? '⏳ Preparando...' : '💳 Pagar ' + (selectedPrice === 199 ? '1.99€' : '2.99€') }}
     </button>
     
     <!-- Formulario de Stripe -->

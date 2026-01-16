@@ -14,15 +14,43 @@
     </div>
 
     <div class="payment-section">
-      <h3>Último Paso: Realizar el Pago</h3>
+      <h3>Selecciona tu Suscripción</h3>
       <p class="payment-description">
-        Para activar tu gramola necesitas completar el pago.
+        Elige el plan que mejor se adapte a tus necesidades.
         El pago se procesa de forma segura con Stripe.
       </p>
 
-      <div class="price-card">
-        <div class="price-amount">29.99€</div>
-        <div class="price-period">/ mes</div>
+      <!-- OPCIONES DE SUSCRIPCIÓN -->
+      <div class="subscription-options">
+        <div 
+          class="subscription-card"
+          [class.selected]="selectedSubscription === 'monthly'"
+          (click)="selectedSubscription = 'monthly'">
+          <div class="subscription-badge">Recomendado</div>
+          <div class="subscription-title">📅 Mensual</div>
+          <div class="subscription-price">{{ prices.monthly.amount }}€</div>
+          <div class="subscription-period">/ mes</div>
+          <ul class="subscription-features">
+            <li>✓ Pruébalo sin compromiso</li>
+            <li>✓ Cancela cuando quieras</li>
+            <li>✓ Renovación automática</li>
+          </ul>
+        </div>
+
+        <div 
+          class="subscription-card"
+          [class.selected]="selectedSubscription === 'annual'"
+          (click)="selectedSubscription = 'annual'">
+          <div class="subscription-badge savings">¡Ahorra 17%!</div>
+          <div class="subscription-title">📆 Anual</div>
+          <div class="subscription-price">{{ prices.annual.amount }}€</div>
+          <div class="subscription-period">/ año</div>
+          <ul class="subscription-features">
+            <li>✓ 2 meses gratis</li>
+            <li>✓ Ahorra 60€ al año</li>
+            <li>✓ Pago único anual</li>
+          </ul>
+        </div>
       </div>
 
       <ul class="features-list">

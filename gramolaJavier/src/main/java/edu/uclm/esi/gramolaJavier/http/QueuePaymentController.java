@@ -1,11 +1,13 @@
 package edu.uclm.esi.gramolaJavier.http;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import edu.uclm.esi.gramolaJavier.dto.QueuePrepayRequest;
+import edu.uclm.esi.gramolaJavier.models.QueuePaymentTransaction;
 import edu.uclm.esi.gramolaJavier.services.QueuePaymentService;
 import jakarta.servlet.http.HttpSession;
 
@@ -73,6 +75,38 @@ public class QueuePaymentController {
             throw new ResponseStatusException(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Error inesperado: " + e.getMessage()
+            );
+        }
+    }
+    
+    /**
+     * Obtiene el historial de canciones pagadas por un usuario
+     */
+    @GetMapping("/history/{email}")
+    public ResponseEntity<List<QueuePaymentTransaction>> getHistory(@PathVariable String email) {
+        try {
+            List<QueuePaymentTransaction> transactions = queuePaymentService.getHistoryByEmail(email);
+            return ResponseEntity.ok(transactions);
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Error al obtener historial: " + e.getMessage()
+            );
+        }
+    }
+    
+    /**
+     * Obtiene todas las transacciones completadas (para el propietario)
+     */
+    @GetMapping("/all")
+    public ResponseEntity<List<QueuePaymentTransaction>> getAllCompleted() {
+        try {
+            List<QueuePaymentTransaction> transactions = queuePaymentService.getAllCompleted();
+            return ResponseEntity.ok(transactions);
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Error al obtener transacciones: " + e.getMessage()
             );
         }
     }
