@@ -1,0 +1,376 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+
+.register-background {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+}
+
+.register-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.register-container {
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    z-index: 10;
+}
+
+.register-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    animation: cardEntrance 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.register-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        transparent 100%);
+    animation: cardShimmer 3s ease-in-out infinite;
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.register-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 8px 0;
+    background: linear-gradient(135deg, #2d3748, #4a5568);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.register-subtitle {
+    font-size: 16px;
+    color: #718096;
+    margin: 0;
+    font-weight: 300;
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 8px;
+    display: block;
+    transition: color 0.3s ease;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.form-input {
+    width: 100%;
+    padding: 16px 0;
+    border: none;
+    border-bottom: 2px solid #e2e8f0;
+    background: transparent;
+    font-size: 16px;
+    color: #2d3748;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.form-input::placeholder {
+    color: #a0aec0;
+    transition: opacity 0.3s ease;
+}
+
+.form-input:focus::placeholder {
+    opacity: 0.6;
+}
+
+.input-underline {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(-50%);
+}
+
+.form-input:focus + .input-underline {
+    width: 100%;
+}
+
+.form-input:focus {
+    border-bottom-color: transparent;
+}
+
+.form-group:focus-within .form-label {
+    color: #667eea;
+}
+
+/* SECCIÓN SPOTIFY */
+.spotify-section {
+    margin: 20px 0 10px;
+}
+
+.section-divider {
+    text-align: center;
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.section-divider::before,
+.section-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+}
+
+.section-divider::before {
+    left: 0;
+}
+
+.section-divider::after {
+    right: 0;
+}
+
+.divider-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1DB954;
+    background: white;
+    padding: 0 15px;
+    position: relative;
+}
+
+.spotify-help {
+    font-size: 13px;
+    color: #718096;
+    text-align: center;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.spotify-link {
+    color: #1DB954;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.spotify-link:hover {
+    color: #1ed760;
+    text-decoration: underline;
+}
+
+.field-help {
+    font-size: 12px;
+    color: #a0aec0;
+    margin: 8px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* BOTÓN DE REGISTRO */
+.register-button {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
+}
+
+.register-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.button-text {
+    position: relative;
+    z-index: 2;
+}
+
+.button-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.3) 50%, 
+        transparent 100%);
+    transition: left 0.6s ease;
+}
+
+.register-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px -5px rgba(102, 126, 234, 0.5);
+}
+
+.register-button:hover:not(:disabled) .button-shine {
+    left: 100%;
+}
+
+.register-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* ENLACE A LOGIN */
+.login-link {
+    text-align: center;
+    font-size: 14px;
+    color: #718096;
+    margin-top: 20px;
+}
+
+.login-link a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.login-link a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+/* Animaciones */
+@keyframes cardEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes cardShimmer {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: 100%; }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .register-container {
+        max-width: 100%;
+        padding: 0 10px;
+    }
+    
+    .register-card {
+        padding: 30px 25px;
+        margin: 10px 0;
+    }
+    
+    .register-title {
+        font-size: 26px;
+    }
+    
+    .register-subtitle {
+        font-size: 14px;
+    }
+    
+    .form-input {
+        padding: 14px 0;
+        font-size: 16px; /* Evita zoom en iOS */
+    }
+    
+    .register-button {
+        padding: 16px;
+    }
+    
+    .section-divider::before,
+    .section-divider::after {
+        width: 35%;
+    }
+}
+
+/* Estados de validación elegantes */
+.form-input:invalid:not(:placeholder-shown):not(:focus) {
+    border-bottom-color: #fc8181;
+}
+
+.form-input:valid:not(:placeholder-shown):not(:focus) {
+    border-bottom-color: #68d391;
+}
+
+/* Efecto de enfoque suave */
+.form-group:focus-within {
+    animation: gentleFocus 0.3s ease;
+}
+
+@keyframes gentleFocus {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.01); }
+    100% { transform: scale(1); }
+}

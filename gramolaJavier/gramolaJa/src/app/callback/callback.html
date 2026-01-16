@@ -1,0 +1,36 @@
+<div class="callback-container">
+  <div class="callback-card">
+    
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <h2>Conectando con Spotify...</h2>
+      <p>Por favor espera mientras procesamos tu autorización</p>
+    </div>
+    
+    <!-- Success State -->
+    <div *ngIf="success && !loading" class="success-state">
+      <div class="success-icon">✓</div>
+      <h2>¡Conexión Exitosa!</h2>
+      <p>Tu cuenta ha sido vinculada con Spotify correctamente</p>
+      <p class="redirect-message">Redirigiendo al dashboard...</p>
+    </div>
+    
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-state">
+      <div class="error-icon">✕</div>
+      <h2>Error de Conexión</h2>
+      <pre class="error-message">{{ error }}</pre>
+      <button class="retry-button" (click)="goToLogin()">
+        Volver al Login
+      </button>
+    </div>
+    
+    <!-- ✅ DEBUG INFO SIEMPRE VISIBLE -->
+    <div class="debug-info" *ngIf="showDebug">
+      <h3>🔍 Información de Debug</h3>
+      <pre>{{ debugInfo }}</pre>
+    </div>
+    
+  </div>
+</div>

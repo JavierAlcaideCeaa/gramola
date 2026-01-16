@@ -1,0 +1,369 @@
+<div class="dashboard-container">
+  
+  <!-- ========== LOADING STATE ========== -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <h2>Cargando Dashboard...</h2>
+    <p>Conectando con Spotify</p>
+  </div>
+
+  <!-- ========== ERROR STATE ========== -->
+  <div *ngIf="error && !loading" class="error-state">
+    <div class="error-icon">⚠️</div>
+    <h2>Error</h2>
+    <p>{{ error }}</p>
+    <button class="retry-button" (click)="logout()">
+      Volver al Login
+    </button>
+  </div>
+
+  <!-- ========== DASHBOARD CONTENT ========== -->
+  <div *ngIf="!loading && !error" class="dashboard-content">
+    
+    <!-- ========== HEADER ========== -->
+    <header class="dashboard-header">
+      <div class="user-info">
+        <div class="user-details">
+          <h1>🎵 {{ barName }}</h1>
+          <p>{{ userEmail }}</p>
+        </div>
+      </div>
+      <button class="logout-button" (click)="logout()">
+        🚪 Cerrar Sesión
+      </button>
+    </header>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="dashboard-main">
+      <!-- ========== DISPOSITIVOS (Figura 28) ========== -->
+      <section class="card devices-card">
+        <div class="card-header">
+          <h3>🔊 Dispositivos</h3>
+          <button class="link-btn" (click)="getDevices()">
+            🔄 Recargar
+          </button>
+        </div>
+
+        <!-- ✅ DISPOSITIVOS ENCONTRADOS -->
+        <div *ngIf="devices.length > 0" class="list">
+          <div 
+            *ngFor="let device of devices"
+            class="row"
+            [class.active-device]="device.is_active"
+            (click)="selectedDevice = device">
+            
+            <span class="device-content">
+              <span *ngIf="device.is_active" class="music-icon">🎶</span>
+              <span class="device-name">{{ device.name }}</span>
+              <span class="device-separator">-</span>
+              <span class="device-type">{{ device.type }}</span>
+              <span class="device-separator">-</span>
+              <span class="device-id">{{ device.id }}</span>
+              <span *ngIf="device.is_active" class="music-icon">🎶</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- ✅ NO HAY DISPOSITIVOS - MOSTRAR INSTRUCCIONES DETALLADAS -->
+        <div *ngIf="devices.length === 0 && !deviceError" class="no-devices-section">
+          <div class="warning-icon-large">⚠️</div>
+          <h3>No hay dispositivos de Spotify conectados</h3>
+          
+          <div class="instructions-card">
+            <h4>📱 Para reproducir música necesitas:</h4>
+            
+            <div class="instruction-step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h5>Descargar Spotify Desktop</h5>
+                <p>Ve a <a href="https://www.spotify.com/download" target="_blank" class="spotify-download-link">spotify.com/download</a> y descarga la aplicación para tu computadora</p>
+              </div>
+            </div>
+
+            <div class="instruction-step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h5>Iniciar Sesión</h5>
+                <p>Abre Spotify Desktop e inicia sesión con <strong>{{ userEmail }}</strong></p>
+              </div>
+            </div>
+
+            <div class="instruction-step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h5>Reproducir Algo</h5>
+                <p>Busca cualquier canción y dale <strong>Play</strong>. Esto activa el dispositivo.</p>
+              </div>
+            </div>
+
+            <div class="instruction-step">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h5>Recargar Dashboard</h5>
+                <p>Haz clic en el botón <strong>🔄 Recargar</strong> arriba y tu dispositivo debería aparecer.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="alternative-options">
+            <h4>📲 Alternativas:</h4>
+            <ul>
+              <li><strong>Móvil:</strong> Usa la app de Spotify en tu teléfono</li>
+              <li><strong>Tablet:</strong> Instala Spotify en tu tablet</li>
+              <li><strong>Web Player:</strong> Ve a <a href="https://open.spotify.com" target="_blank">open.spotify.com</a> (limitado)</li>
+            </ul>
+          </div>
+
+          <button class="refresh-devices-button" (click)="getDevices()">
+            🔄 Buscar Dispositivos Nuevamente
+          </button>
+        </div>
+
+        <!-- ⚠️ ERROR AL CARGAR DISPOSITIVOS -->
+        <div class="error" *ngIf="deviceError">
+          ⚠️ {{ deviceError }}
+        </div>
+      </section>
+
+      <!-- ========== PLAYLISTS ========== -->
+      <section class="card playlists-card">
+        <div class="card-header">
+          <h3>📂 Tus Playlists</h3>
+          <button class="link-btn" (click)="getPlaylists()">
+            🔄 Recargar
+          </button>
+        </div>
+
+        <div *ngIf="playlists.length > 0" class="playlists-grid">
+          <div 
+            *ngFor="let playlist of playlists"
+            class="playlist-card"
+            [class.selected]="selectedPlaylist?.id === playlist.id"
+            (click)="selectPlaylist(playlist)">
+            
+            <img 
+              [src]="playlist.images[0]?.url || 'https://via.placeholder.com/200'" 
+              [alt]="playlist.name"
+              class="playlist-image"
+            >
+            
+            <div class="playlist-info">
+              <h4 class="playlist-name">{{ playlist.name }}</h4>
+              <p class="playlist-tracks">{{ playlist.tracks.total }} canciones</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="error" *ngIf="playlistError">
+          ⚠️ {{ playlistError }}
+        </div>
+      </section>
+
+      <!-- ========== COLA DE REPRODUCCIÓN (queue - Figura 26) ========== -->
+      <section *ngIf="selectedPlaylist && queue.length > 0" class="card queue-card">
+        <div class="card-header">
+          <h3>🎵 Cola de Reproducción</h3>
+          <p class="subtitle">{{ queue.length }} canciones en {{ selectedPlaylist.name }}</p>
+        </div>
+
+        <div class="queue-list">
+          <div 
+            *ngFor="let item of queue; let i = index"
+            class="queue-item">
+            
+            <span class="queue-number">{{ i + 1 }}</span>
+            
+            <img 
+              [src]="item.track.album.images[2]?.url || item.track.album.images[0]?.url" 
+              [alt]="item.track.name"
+              class="queue-track-image"
+            >
+            
+            <div class="queue-track-info">
+              <div class="queue-track-name">{{ item.track.name }}</div>
+              <div class="queue-track-artist">{{ item.track.artists[0].name }}</div>
+            </div>
+            
+            <div class="queue-track-duration">
+              {{ formatTime(item.track.duration_ms) }}
+            </div>
+          </div>
+        </div>
+
+        <div class="error" *ngIf="currentPlaylistError">
+          ⚠️ {{ currentPlaylistError }}
+        </div>
+      </section>
+
+      <!-- ========== REPRODUCCIÓN ACTUAL ========== -->
+      <section *ngIf="currentTrack" class="card player-card">
+        <h3>🎧 Reproduciendo Ahora</h3>
+        
+        <div class="now-playing">
+          <img 
+            [src]="currentTrack.album.images[0]?.url" 
+            [alt]="currentTrack.name"
+            class="album-cover"
+          >
+          
+          <div class="track-details">
+            <h2 class="current-track-name">{{ currentTrack.name }}</h2>
+            <h3 class="current-artist-name">{{ currentTrack.artists[0].name }}</h3>
+            <p class="current-album-name">{{ currentTrack.album.name }}</p>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+          <span class="time-label">{{ formatTime(progress) }}</span>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="getProgressPercentage()"></div>
+          </div>
+          <span class="time-label">{{ formatTime(duration) }}</span>
+        </div>
+
+        <!-- Controls -->
+        <div class="player-controls">
+          <button class="control-button" (click)="previousTrack()" title="Anterior">
+            ⏮️
+          </button>
+          <button class="control-button play-button" (click)="togglePlay()" title="Play/Pause">
+            {{ isPlaying ? '⏸️' : '▶️' }}
+          </button>
+          <button class="control-button" (click)="nextTrack()" title="Siguiente">
+            ⏭️
+          </button>
+        </div>
+
+        <!-- Volume -->
+        <div class="volume-control">
+          <span class="volume-icon">🔉</span>
+          <input 
+            type="range" 
+            min="0" 
+            max="100" 
+            [value]="volume"
+            (input)="changeVolume($event)"
+            class="volume-slider"
+            title="Volumen"
+          >
+          <span class="volume-value">{{ volume }}%</span>
+        </div>
+      </section>
+
+      <!-- ========== BÚSQUEDA AVANZADA (Figura 26) ========== -->
+      <section class="card search-card">
+        <h3>🔍 Buscar Canciones</h3>
+        
+        <!-- Búsqueda General -->
+        <div class="search-box">
+          <input 
+            type="text" 
+            placeholder="Buscar canciones, artistas o álbumes..."
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="search()"
+            class="search-input"
+          >
+          <button 
+            class="search-button" 
+            (click)="search()"
+            [disabled]="searching">
+            {{ searching ? '🔄 Buscando...' : '🔍 Buscar' }}
+          </button>
+        </div>
+
+        <!-- Filtros Avanzados (title y artist - Figura 26) -->
+        <div class="advanced-filters">
+          <h4>🎯 Filtros Avanzados</h4>
+          
+          <div class="filter-row">
+            <div class="filter-group">
+              <label for="title-filter">🎵 Título de la canción:</label>
+              <input 
+                id="title-filter"
+                type="text" 
+                [(ngModel)]="titleFilter"
+                placeholder="Ej: Lost"
+                class="filter-input"
+                (keyup.enter)="search()"
+              >
+            </div>
+            
+            <div class="filter-group">
+              <label for="artist-filter">🎤 Artista:</label>
+              <input 
+                id="artist-filter"
+                type="text" 
+                [(ngModel)]="artistFilter"
+                placeholder="Ej: LP"
+                class="filter-input"
+                (keyup.enter)="search()"
+              >
+            </div>
+          </div>
+
+          <button 
+            class="filter-search-button" 
+            (click)="search()"
+            [disabled]="searching">
+            {{ searching ? '🔄 Buscando...' : '🔍 Buscar con Filtros' }}
+          </button>
+        </div>
+
+        <!-- Resultados de Búsqueda (tracks - Figura 26) -->
+        <div *ngIf="searchResults.length > 0" class="search-results">
+          <h4>📋 Resultados ({{ searchResults.length }})</h4>
+          
+          <div class="results-list">
+            <div 
+              *ngFor="let track of searchResults; let i = index"
+              class="result-item">
+              
+              <span class="result-number">{{ i + 1 }}</span>
+              
+              <img 
+                [src]="track.album.images[2]?.url || track.album.images[0]?.url" 
+                [alt]="track.name"
+                class="result-image"
+              >
+              
+              <div class="result-info">
+                <h5 class="result-track-name">{{ track.name }}</h5>
+                <p class="result-artist-name">{{ track.artists[0].name }}</p>
+                <p class="result-album-name">{{ track.album.name }}</p>
+              </div>
+              
+              <div class="result-actions">
+                <button 
+                  class="play-now-button"
+                  (click)="playTrack(track)"
+                  title="Reproducir ahora">
+                  ▶️ Reproducir
+                </button>
+                <button 
+                  class="add-queue-button"
+                  (click)="addToQueue(track)"
+                  title="Añadir a la cola">
+                  ➕ Cola
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal de Queue Payment -->
+        <app-queue-payment
+          *ngIf="showQueuePaymentModal"
+          [track]="selectedTrackForQueue"
+          [deviceId]="selectedDevice?.id || ''"
+          (close)="closeQueuePaymentModal()">
+        </app-queue-payment>
+
+        <div class="error" *ngIf="songError">
+          ⚠️ {{ songError }}
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+</div>

@@ -1,0 +1,67 @@
+<div class="login-background">
+    <div class="login-container">
+        <!-- MENSAJE INFORMATIVO (si viene de registro) -->
+        <div *ngIf="infoMessage" class="info-banner">
+            <span class="info-icon">ℹ️</span>
+            <span class="info-text">{{ infoMessage }}</span>
+        </div>
+
+        <div class="login-card">
+            <div class="card-header">
+                <h2 class="login-title">Bienvenido</h2>
+                <p class="login-subtitle">Inicia sesión en tu gramola</p>
+            </div>
+            
+            <form class="login-form">
+                <!-- EMAIL -->
+                <div class="form-group">
+                    <label class="form-label">Correo Electrónico</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="email" 
+                            class="form-input" 
+                            [(ngModel)]="email" 
+                            name="email"
+                            placeholder="correo@tubar.com"
+                            required>
+                        <div class="input-underline"></div>
+                    </div>
+                </div>
+
+                <!-- CONTRASEÑA -->
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="password" 
+                            class="form-input" 
+                            [(ngModel)]="pwd" 
+                            name="password"
+                            placeholder="Tu contraseña"
+                            required
+                            minlength="6">
+                        <div class="input-underline"></div>
+                    </div>
+                </div>
+
+                <!-- BOTÓN LOGIN -->
+                <button 
+                    type="button" 
+                    class="login-button" 
+                    (click)="login()"
+                    [disabled]="isLoading">
+                    <span class="button-text">
+                        {{ isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+                    </span>
+                    <div class="button-shine"></div>
+                </button>
+
+                <!-- ENLACE A REGISTRO -->
+                <p class="register-link">
+                    ¿No tienes cuenta? 
+                    <a routerLink="/register">Regístrate aquí</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>

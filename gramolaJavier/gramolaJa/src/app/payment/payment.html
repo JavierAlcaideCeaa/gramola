@@ -1,0 +1,72 @@
+<div class="payment-container">
+  <div class="payment-card">
+    <div class="card-header">
+      <div class="success-icon">✓</div>
+      <h2 class="payment-title">¡Cuenta Confirmada!</h2>
+      <p class="payment-subtitle">Tu email ha sido verificado exitosamente</p>
+    </div>
+
+    <div class="payment-info">
+      <div class="info-row">
+        <span class="info-label">📧 Email confirmado:</span>
+        <span class="info-value">{{ email }}</span>
+      </div>
+    </div>
+
+    <div class="payment-section">
+      <h3>Último Paso: Realizar el Pago</h3>
+      <p class="payment-description">
+        Para activar tu gramola necesitas completar el pago.
+        El pago se procesa de forma segura con Stripe.
+      </p>
+
+      <div class="price-card">
+        <div class="price-amount">29.99€</div>
+        <div class="price-period">/ mes</div>
+      </div>
+
+      <ul class="features-list">
+        <li>🎵 Reproducción ilimitada</li>
+        <li>🎸 Integración con Spotify</li>
+        <li>📊 Estadísticas en tiempo real</li>
+        <li>🔧 Soporte técnico 24/7</li>
+      </ul>
+
+      <!-- BOTÓN INICIAL -->
+      <button 
+        *ngIf="!transactionDetails"
+        class="payment-button" 
+        (click)="prepay()"
+        [disabled]="loading">
+        <span class="button-text">
+          {{ loading ? 'Preparando pago...' : '💳 Ir al Pago' }}
+        </span>
+      </button>
+
+      <!-- FORMULARIO DE STRIPE -->
+      <form id="payment-form" style="display: none;">
+        <div id="card-element" class="stripe-card-element"></div>
+        <div id="card-error" class="card-error"></div>
+        
+        <button 
+          id="submit-payment"
+          type="submit" 
+          class="payment-button">
+          <span class="button-text">💳 Pagar Ahora</span>
+        </button>
+      </form>
+
+      <button 
+        *ngIf="!transactionDetails"
+        class="cancel-button" 
+        (click)="goToRegister()">
+        Cancelar y volver
+      </button>
+    </div>
+
+    <div class="security-badge">
+      <span class="badge-icon">🔒</span>
+      <span class="badge-text">Pago seguro procesado por Stripe</span>
+    </div>
+  </div>
+</div>

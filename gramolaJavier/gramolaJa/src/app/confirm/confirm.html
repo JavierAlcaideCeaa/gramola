@@ -1,0 +1,27 @@
+<div class="confirm-container">
+  <div class="confirm-card">
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <h2>Confirmando tu cuenta...</h2>
+      <p>Por favor espera un momento</p>
+    </div>
+
+    <div *ngIf="success && !loading" class="success-state">
+      <div class="success-icon">✓</div>
+      <h2>¡Cuenta Confirmada!</h2>
+      <p>Tu cuenta ha sido confirmada exitosamente.</p>
+      <p class="redirect-message">
+        Serás redirigido al pago en unos segundos...
+      </p>
+    </div>
+
+    <div *ngIf="error && !loading" class="error-state">
+      <div class="error-icon">✗</div>
+      <h2>Error de Confirmación</h2>
+      <p class="error-message">{{ error }}</p>
+      <button class="retry-button" (click)="goToRegister()">
+        Volver al Registro
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,136 @@
+<div class="register-background">
+    <div class="register-container">
+        <div class="register-card">
+            <div class="card-header">
+                <h2 class="register-title">Registro de Bar</h2>
+                <p class="register-subtitle">Únete a nuestra red de gramolas</p>
+            </div>
+            
+            <form class="register-form">
+                <!-- NOMBRE DEL BAR -->
+                <div class="form-group">
+                    <label class="form-label">Nombre del Bar *</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            [(ngModel)]="barName" 
+                            name="barName"
+                            placeholder="Ej: Bar La Movida"
+                            required
+                            minlength="3">
+                        <div class="input-underline"></div>
+                    </div>
+                </div>
+
+                <!-- EMAIL -->
+                <div class="form-group">
+                    <label class="form-label">Correo Electrónico *</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="email" 
+                            class="form-input" 
+                            [(ngModel)]="email" 
+                            name="email"
+                            placeholder="correo@tubar.com"
+                            required>
+                        <div class="input-underline"></div>
+                    </div>
+                </div>
+
+                <!-- CONTRASEÑA -->
+                <div class="form-group">
+                    <label class="form-label">Contraseña *</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="password" 
+                            class="form-input" 
+                            [(ngModel)]="pwd1" 
+                            name="password"
+                            placeholder="Mínimo 6 caracteres"
+                            required
+                            minlength="6">
+                        <div class="input-underline"></div>
+                    </div>
+                </div>
+
+                <!-- CONFIRMAR CONTRASEÑA -->
+                <div class="form-group">
+                    <label class="form-label">Confirmar Contraseña *</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="password" 
+                            class="form-input" 
+                            [(ngModel)]="pwd2" 
+                            name="confirmPassword"
+                            placeholder="Repite tu contraseña"
+                            required>
+                        <div class="input-underline"></div>
+                    </div>
+                </div>
+
+                <!-- SEPARADOR SPOTIFY -->
+                <div class="spotify-section">
+                    <div class="section-divider">
+                        <span class="divider-text">🎵 Credenciales de Spotify</span>
+                    </div>
+                    <p class="spotify-help">
+                        Obtén estas credenciales desde 
+                        <a href="https://developer.spotify.com/dashboard" target="_blank" class="spotify-link">
+                            Spotify for Developers
+                        </a>
+                    </p>
+                </div>
+
+                <!-- SPOTIFY CLIENT ID -->
+                <div class="form-group">
+                    <label class="form-label">Spotify Client ID *</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            [(ngModel)]="clientId" 
+                            name="clientId"
+                            placeholder="Ej: a1b2c3d4e5f6g7h8i9j0"
+                            required>
+                        <div class="input-underline"></div>
+                    </div>
+                </div>
+
+                <!-- SPOTIFY CLIENT SECRET -->
+                <div class="form-group">
+                    <label class="form-label">Spotify Client Secret *</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="password" 
+                            class="form-input" 
+                            [(ngModel)]="clientSecret" 
+                            name="clientSecret"
+                            placeholder="Ej: z9y8x7w6v5u4t3s2r1q0"
+                            required>
+                        <div class="input-underline"></div>
+                    </div>
+                    <p class="field-help">🔒 Esta información se guardará de forma segura</p>
+                </div>
+
+                <!-- BOTÓN DE REGISTRO -->
+                <button 
+                    type="button" 
+                    class="register-button" 
+                    (click)="register()"
+                    [disabled]="isLoading">
+                    <span class="button-text">
+                        {{ isLoading ? 'Registrando...' : 'Registrarse' }}
+                    </span>
+                    <div class="button-shine"></div>
+                </button>
+
+                <!-- ENLACE A LOGIN -->
+                <p class="login-link">
+                    ¿Ya tienes cuenta? 
+                    <a routerLink="/login">Iniciar sesión</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>

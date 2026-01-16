@@ -1,0 +1,76 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>🎵 Pagar para Encolar</h2>
+      <button class="close-btn" (click)="closeModal()">✕</button>
+    </div>
+    
+    <!-- Track Info -->
+    <div class="track-info" *ngIf="track">
+      <img [src]="track.album.images[0]?.url" alt="Album cover">
+      <div class="track-details">
+        <p class="track-name">{{ track.name }}</p>
+        <p class="track-artist">{{ track.artists[0].name }}</p>
+      </div>
+    </div>
+    
+    <!-- Email (readonly) -->
+    <div class="form-group">
+      <label>📧 Email</label>
+      <input type="email" [value]="email" readonly class="readonly-input">
+    </div>
+    
+    <!-- Selección de Precio -->
+    <div class="price-selection" *ngIf="!showStripeForm">
+      <h3>💰 Selecciona un Precio</h3>
+      
+      <label class="price-option" [class.selected]="selectedPrice === 199">
+        <input type="radio" name="price" [value]="199" [(ngModel)]="selectedPrice">
+        <div class="price-card">
+          <span class="price-amount">1.99€</span>
+          <span class="price-label">Standard</span>
+        </div>
+      </label>
+      
+      <label class="price-option" [class.selected]="selectedPrice === 299">
+        <input type="radio" name="price" [value]="299" [(ngModel)]="selectedPrice">
+        <div class="price-card">
+          <span class="price-amount">2.99€</span>
+          <span class="price-label">Premium</span>
+        </div>
+      </label>
+    </div>
+    
+    <!-- Botón de Pago Inicial -->
+    <button 
+      *ngIf="!showStripeForm"
+      class="pay-btn" 
+      (click)="processPayment()"
+      [disabled]="loading">
+      {{ loading ? '⏳ Preparando...' : '💳 Continuar al Pago' }}
+    </button>
+    
+    <!-- Formulario de Stripe -->
+    <div class="stripe-form" *ngIf="showStripeForm">
+      <h3>💳 Información de Pago</h3>
+      <div id="queue-card-element" class="card-element"></div>
+      <div id="queue-card-error" class="card-error"></div>
+      
+      <button 
+        class="pay-btn" 
+        (click)="confirmPayment()"
+        [disabled]="loading">
+        {{ loading ? '⏳ Procesando...' : '✅ Confirmar Pago' }}
+      </button>
+    </div>
+    
+    <!-- Stripe Badge -->
+    <div class="stripe-badge">
+      <span>🔒</span>
+      <span>Pago seguro con Stripe</span>
+    </div>
+    
+  </div>
+</div>
