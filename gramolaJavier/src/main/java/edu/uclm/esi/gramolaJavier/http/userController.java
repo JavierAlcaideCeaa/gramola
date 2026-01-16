@@ -29,14 +29,31 @@ public class userController {
         String barName = body.get("barName");
         String clientId = body.get("clientId");
         String clientSecret = body.get("clientSecret");
+        String address = body.get("address"); // NUEVO: Dirección postal
+        
+        // Extraer coordenadas GPS (pueden ser null si no se proporcionan)
+        Double latitude = null;
+        Double longitude = null;
+        
+        try {
+            if (body.get("latitude") != null) {
+                latitude = Double.parseDouble(body.get("latitude"));
+            }
+            if (body.get("longitude") != null) {
+                longitude = Double.parseDouble(body.get("longitude"));
+            }
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Coordenadas GPS inválidas");
+        }
         
         if (email == null || pwd1 == null || pwd2 == null || 
             barName == null || clientId == null || clientSecret == null) {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, 
                 "Faltan datos obligatorios");
         }
-
-        this.service.register(email, pwd1, pwd2, barName, clientId, clientSecret);
+        
+        this.service.register(email, pwd1, pwd2, barName, clientId, clientSecret, address, latitude, longitude);
     }
     
     /**

@@ -9,12 +9,14 @@ public class QueuePrepayRequest {
     private String albumName;
     private String deviceId;
     private Long priceCode;  // 199 o 299
+    private Double userLatitude;  // Ubicación del usuario
+    private Double userLongitude; // Ubicación del usuario
     
     public QueuePrepayRequest() {}
     
     public QueuePrepayRequest(String customerName, String accessToken, String trackUri, 
                              String trackName, String artistName, String albumName,
-                             String deviceId, Long priceCode) {
+                             String deviceId, Long priceCode, Double userLatitude, Double userLongitude) {
         this.customerName = customerName;
         this.accessToken = accessToken;
         this.trackUri = trackUri;
@@ -23,6 +25,8 @@ public class QueuePrepayRequest {
         this.albumName = albumName;
         this.deviceId = deviceId;
         this.priceCode = priceCode;
+        this.userLatitude = userLatitude;
+        this.userLongitude = userLongitude;
     }
     
     public String getCustomerName() { return customerName; }
@@ -48,4 +52,10 @@ public class QueuePrepayRequest {
     
     public Long getPriceCode() { return priceCode; }
     public void setPriceCode(Long priceCode) { this.priceCode = priceCode; }
+    
+    public Double getUserLatitude() { return userLatitude; }
+    public void setUserLatitude(Double userLatitude) { this.userLatitude = userLatitude; }
+    
+    public Double getUserLongitude() { return userLongitude; }
+    public void setUserLongitude(Double userLongitude) { this.userLongitude = userLongitude; }
 }

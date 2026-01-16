@@ -21,14 +21,19 @@ public class UserService {
     @Autowired
     private EmailService emailService;
     
+    @Autowired
+    private GeocodingService geocodingService;
+    
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
         "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
     );
     
     /**
      * Registra un nuevo usuario (bar) en el sistema
+     * @param latitude Latitud GPS (si se proporciona directamente)
+     * @param longitude Longitud GPS (si se proporciona directamente)
      */
-    public void register(String email, String pwd1, String pwd2, String barName, String clientId, String clientSecret) {
+    public void register(String email, String pwd1, String pwd2, String barName, String clientId, String clientSecret, String address, Double latitude, Double longitude) {
         // ============================================
         // VALIDACIONES DE ENTRADA
         // ============================================
@@ -101,8 +106,34 @@ public class UserService {
         // Crear token de confirmación
         Token token = new Token();
         
-        // Crear usuario
-        User newUser = new User(email, pwd1, barName, clientId, clientSecret, token);
+        // Obtener coordenadas:
+        // 1. Si vienen directamente (latitude/longitude) -> usar esas
+        // 2. Si viene dirección -> hacer geocoding
+        
+        if (latitude != null && longitude != null) {
+            // Coordenadas GPS proporcionadas directamente
+            System.out.println("📍 Coordenadas GPS recibidas: " + latitude + ", " + longitude);
+        } else if (address != null && !address.trim().isEmpty()) {
+            // Hacer geocoding de la dirección
+            try {
+                double[] coords = geocodingService.getCoordinates(address);
+                latitude = coords[0];
+                longitude = coords[1];
+                System.out.println("📍 Coordenadas obtenidas por geocoding: " + latitude + ", " + longitude);
+            } catch (Exception e) {
+                System.err.println("⚠️ No se pudieron obtener coordenadas para: " + address);
+                // No lanzamos error, simplemente no guardamos coordenadas
+            }
+        }
+        
+        // Crear usuario con dirección y coordenadas
+        User newUser;
+        if (address != null && !address.trim().isEmpty()) {
+            newUser = new User(email, pwd1, barName, clientId, clientSecret, token, address, latitude, longitude);
+        } else {
+            newUser = new User(email, pwd1, barName, clientId, clientSecret, token);
+        }
+        
         this.userDao.save(newUser);
         
         // ============================================
@@ -161,6 +192,13 @@ public class UserService {
         response.put("email", user.getEmail());
         response.put("barName", user.getBarName());
         response.put("clientId", user.getClientId());
+        
+        // Incluir coordenadas GPS si están disponibles
+        if (user.getLatitude() != null && user.getLongitude() != null) {
+            response.put("latitude", String.valueOf(user.getLatitude()));
+            response.put("longitude", String.valueOf(user.getLongitude()));
+            System.out.println("📍 Coordenadas: " + user.getLatitude() + ", " + user.getLongitude());
+        }
         
         return response;
     }
@@ -237,6 +275,16 @@ public class UserService {
         this.userDao.delete(user);
         
         System.out.println("🗑️ Usuario eliminado: " + email);
+    }
+    
+    /**
+     * Busca un usuario por su email
+     * @param email El email del usuario
+     * @return El usuario si existe, null si no existe
+     */
+    public User findByEmail(String email) {
+        Optional<User> userOpt = this.userDao.findById(email);
+        return userOpt.orElse(null);
     }
 
     /**

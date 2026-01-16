@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { interval, Subscription } from 'rxjs';
 import { QueuePaymentComponent } from '../queue-payment/queue-payment';
+import { UserService } from '../user';
 
 // ==========================================
 // INTERFACES
@@ -66,8 +67,7 @@ interface SpotifyPlaybackState {
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
-  private router = inject(Router);
-
+  private router = inject(Router);  private userService = inject(UserService);
   private spotifyApiUrl = 'https://api.spotify.com/v1';
   private backendUrl = 'http://127.0.0.1:8080';
 
@@ -75,6 +75,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   accessToken: string = '';
   userEmail: string = '';
   barName: string = '';
+  latitude: string = '';
+  longitude: string = '';
 
   // DISPOSITIVOS
   devices: SpotifyDevice[] = [];
@@ -138,9 +140,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.accessToken = sessionStorage.getItem('spotify_access_token') || '';
     this.userEmail = sessionStorage.getItem('userEmail') || '';
     this.barName = sessionStorage.getItem('barName') || '';
+    this.latitude = sessionStorage.getItem('latitude') || '';
+    this.longitude = sessionStorage.getItem('longitude') || '';
     
     console.log('📧 Email:', this.userEmail);
     console.log('🏪 Bar:', this.barName);
+    console.log('📍 Coordenadas:', this.latitude, this.longitude);
     console.log('🔑 Access Token:', this.accessToken ? '✅ Presente' : '❌ NO presente');
     
     if (!this.accessToken) {
@@ -857,5 +862,47 @@ export class DashboardComponent implements OnInit, OnDestroy {
       sessionStorage.clear();
       this.router.navigate(['/login']);
     }
+  }
+
+  deleteAccount() {
+    const confirmation = confirm(
+      '⚠️ ¿ESTÁS SEGURO DE ELIMINAR TU CUENTA?\n\n' +
+      'Esta acción es PERMANENTE y NO se puede deshacer.\n\n' +
+      'Se eliminarán:\n' +
+      '- Tu cuenta de usuario\n' +
+      '- Todas tus configuraciones\n' +
+      '- Historial de pagos\n\n' +
+      'Haz clic en OK para confirmar la eliminación.'
+    );
+
+    if (!confirmation) {
+      return;
+    }
+
+    // Segunda confirmación
+    const finalConfirmation = confirm(
+      '⚠️ Última confirmación\n\n' +
+      '¿Realmente deseas eliminar tu cuenta "' + this.barName + '"?\n\n' +
+      'Esta acción es IRREVERSIBLE.'
+    );
+
+    if (!finalConfirmation) {
+      return;
+    }
+
+    console.log('🗑️ Eliminando cuenta:', this.userEmail);
+
+    this.userService.deleteAccount(this.userEmail).subscribe({
+      next: () => {
+        alert('✅ Cuenta eliminada exitosamente.\n\nLamentamos verte partir.');
+        console.log('✅ Cuenta eliminada correctamente');
+        sessionStorage.clear();
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        console.error('❌ Error al eliminar cuenta:', err);
+        alert('❌ Error al eliminar la cuenta: ' + (err.error?.message || err.message || 'Error desconocido'));
+      }
+    });
   }
 }

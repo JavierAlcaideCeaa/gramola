@@ -66,6 +66,9 @@ export class Login implements OnInit {
         console.log('📧 Email:', response.email);
         console.log('🏪 Bar:', response.barName);
         console.log('🎵 Client ID:', response.clientId);
+        if (response.latitude && response.longitude) {
+          console.log('📍 Coordenadas:', response.latitude, response.longitude);
+        }
         console.log('═══════════════════════════════════');
         
         // Guardar datos en sessionStorage
@@ -73,10 +76,18 @@ export class Login implements OnInit {
         sessionStorage.setItem('barName', response.barName);
         sessionStorage.setItem('clientId', response.clientId);
         
+        // Guardar coordenadas si están disponibles
+        if (response.latitude && response.longitude) {
+          sessionStorage.setItem('latitude', response.latitude);
+          sessionStorage.setItem('longitude', response.longitude);
+        }
+        
         console.log('💾 Datos guardados en sessionStorage:');
         console.log('   userEmail:', sessionStorage.getItem('userEmail'));
         console.log('   barName:', sessionStorage.getItem('barName'));
         console.log('   clientId:', sessionStorage.getItem('clientId'));
+        console.log('   latitude:', sessionStorage.getItem('latitude'));
+        console.log('   longitude:', sessionStorage.getItem('longitude'));
         
         // Limpiar formulario
         this.clearForm();

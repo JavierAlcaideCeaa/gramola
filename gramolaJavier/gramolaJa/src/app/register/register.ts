@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../user';
@@ -6,7 +7,7 @@ import { UserService } from '../user';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './register.html',
   styleUrl: './register.css'
 })
@@ -20,6 +21,10 @@ export class Register {
   pwd2: string = '';
   clientId: string = '';
   clientSecret: string = '';
+  address: string = ''; // NUEVO: Dirección postal del bar
+  latitude: number | null = null;
+  longitude: number | null = null;
+  locationDetected: boolean = false;
   isLoading: boolean = false;
 
   register() {
@@ -27,6 +32,11 @@ export class Register {
     if (!this.barName || !this.email || !this.pwd1 || !this.pwd2 || 
         !this.clientId || !this.clientSecret) {
       alert('⚠️ Por favor complete todos los campos obligatorios');
+      return;
+    }
+    
+    if (!this.locationDetected || this.latitude === null || this.longitude === null) {
+      alert('⚠️ Por favor detecta tu ubicación GPS antes de registrarte.\n\nLa aplicación solo funciona dentro del bar (radio de 100 metros).');
       return;
     }
     
@@ -59,7 +69,10 @@ export class Register {
       this.pwd2, 
       this.barName, 
       this.clientId, 
-      this.clientSecret
+      this.clientSecret,
+      this.address || `GPS: ${this.latitude}, ${this.longitude}`, // Dirección como referencia GPS
+      this.latitude!, // Coordenadas GPS detectadas
+      this.longitude!
     ).subscribe({
       next: () => {
         // ✅ Solo recibimos 200 OK (void)
@@ -150,5 +163,79 @@ export class Register {
     this.pwd2 = '';
     this.clientId = '';
     this.clientSecret = '';
+    this.address = '';
+    this.latitude = null;
+    this.longitude = null;
+    this.locationDetected = false;
+  }
+  
+  /**
+   * Detecta la ubicación GPS actual del usuario para el registro del bar
+   */
+  async detectLocation() {
+    if (!navigator.geolocation) {
+      alert('❌ Tu navegador no soporta geolocalización');
+      return;
+    }
+    
+    this.isLoading = true;
+    
+    try {
+      const position = await this.getUserLocation();
+      this.latitude = position.coords.latitude;
+      this.longitude = position.coords.longitude;
+      this.locationDetected = true;
+      this.address = `GPS: ${this.latitude.toFixed(6)}, ${this.longitude.toFixed(6)}`;
+      
+      console.log('📍 Ubicación detectada:', this.latitude, this.longitude);
+      alert(`✅ Ubicación detectada correctamente\n\n📍 Coordenadas:\nLatitud: ${this.latitude.toFixed(6)}\nLongitud: ${this.longitude.toFixed(6)}`);
+      
+    } catch (error: any) {
+      console.error('❌ Error detectando ubicación:', error);
+      
+      let errorMessage = 'Error desconocido';
+      if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      alert('❌ No se pudo detectar tu ubicación:\n\n' + errorMessage + 
+            '\n\nAsegúrate de permitir el acceso a la ubicación en tu navegador.');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+  
+  /**
+   * Obtiene la ubicación actual del usuario usando Geolocation API
+   */
+  private getUserLocation(): Promise<GeolocationPosition> {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => resolve(position),
+        (error) => {
+          console.error('Error obteniendo ubicación:', error);
+          let errorMessage = 'Error obteniendo ubicación';
+          
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Permiso de ubicación denegado';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Ubicación no disponible';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Tiempo de espera agotado';
+              break;
+          }
+          
+          reject(new Error(errorMessage));
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    });
   }
 }

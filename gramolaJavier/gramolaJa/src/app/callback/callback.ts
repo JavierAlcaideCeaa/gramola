@@ -22,7 +22,7 @@ export class CallbackComponent implements OnInit {
   success = false;
   error = '';
   debugInfo = '';
-  showDebug = true;  // ✅ Siempre mostrar debug
+  showDebug = false;  // ❌ Debug desactivado
 
   ngOnInit() {
     console.log('╔══════════════════════════════════════╗');

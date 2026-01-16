@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
-public class SpotifyService {
+public class   SpotifyService {
 
     @Autowired
     private SpotifyTokenDao spotifyTokenDao;

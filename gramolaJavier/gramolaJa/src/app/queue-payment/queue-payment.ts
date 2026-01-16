@@ -62,20 +62,26 @@ export class QueuePaymentComponent implements OnInit {
     
     this.loading = true;
     
-    const payload = {
-      customerName: this.customerName.trim(),
-      accessToken: accessToken,
-      trackUri: this.track.uri,
-      trackName: this.track.name,
-      artistName: this.track.artists[0]?.name || 'Unknown',
-      albumName: this.track.album?.name || '',
-      deviceId: this.deviceId,
-      priceCode: this.selectedPrice
-    };
-    
-    console.log('📦 Payload:', payload);
-    
+    // Obtener ubicación del usuario
     try {
+      const position = await this.getUserLocation();
+      
+      const payload = {
+        customerName: this.customerName.trim(),
+        accessToken: accessToken,
+        trackUri: this.track.uri,
+        trackName: this.track.name,
+        artistName: this.track.artists[0]?.name || 'Unknown',
+        albumName: this.track.album?.name || '',
+        deviceId: this.deviceId,
+        priceCode: this.selectedPrice,
+        userLatitude: position.coords.latitude,
+        userLongitude: position.coords.longitude
+      };
+      
+      console.log('📍 Ubicación del usuario:', position.coords.latitude, position.coords.longitude);
+      console.log('📦 Payload:', payload);
+    
       // 1. Preparar pago
       const clientSecret = await this.http.post(
         `${this.backendUrl}/queue/prepay`,
@@ -102,8 +108,15 @@ export class QueuePaymentComponent implements OnInit {
     } catch (error: any) {
       this.loading = false;
       console.error('❌ Error:', error);
-      alert('❌ Error al preparar el pago:\n\n' + 
-            (error.error?.message || error.message));
+      
+      // Verificar si es error de geolocalización
+      if (error.message?.includes('ubicación') || error.message?.includes('Permiso')) {
+        alert('⚠️ Debes permitir el acceso a tu ubicación para usar la gramola.\n\n' +
+              'La aplicación solo funciona dentro del bar (radio de 100 metros).');
+      } else {
+        alert('❌ Error al preparar el pago:\n\n' + 
+              (error.error?.message || error.message));
+      }
     }
   }
   
@@ -172,5 +185,44 @@ export class QueuePaymentComponent implements OnInit {
   
   closeModal() {
     this.close.emit();
+  }
+  
+  /**
+   * Obtiene la ubicación actual del usuario
+   */
+  private getUserLocation(): Promise<GeolocationPosition> {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocalización no disponible en este navegador'));
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => resolve(position),
+        (error) => {
+          console.error('Error obteniendo ubicación:', error);
+          let errorMessage = 'Error obteniendo ubicación';
+          
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Permiso de ubicación denegado';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Ubicación no disponible';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Tiempo de espera agotado';
+              break;
+          }
+          
+          reject(new Error(errorMessage));
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    });
   }
 }

@@ -97,6 +97,24 @@
                     </div>
                 </div>
 
+                <!-- UBICACIÓN GPS -->
+                <div class="form-group">
+                    <label class="form-label">📍 Ubicación del Bar *</label>
+                    <button 
+                        type="button"
+                        class="location-button"
+                        (click)="detectLocation()"
+                        [disabled]="isLoading || locationDetected">
+                        {{ locationDetected ? '✅ Ubicación detectada' : '📍 Detectar mi ubicación GPS' }}
+                    </button>
+                    <p class="field-help" *ngIf="!locationDetected">
+                        🌍 La aplicación solo funciona dentro del bar (radio de 100m)
+                    </p>
+                    <p class="field-help success-text" *ngIf="locationDetected">
+                        ✅ Coordenadas: {{ latitude?.toFixed(6) }}, {{ longitude?.toFixed(6) }}
+                    </p>
+                </div>
+
                 <!-- SPOTIFY CLIENT SECRET -->
                 <div class="form-group">
                     <label class="form-label">Spotify Client Secret *</label>

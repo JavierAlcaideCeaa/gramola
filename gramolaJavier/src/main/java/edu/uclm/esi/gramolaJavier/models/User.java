@@ -37,6 +37,15 @@ public class User {
     @Column
     private Long subscriptionExpirationDate; // timestamp en milisegundos
     
+    @Column(length = 500)
+    private String address; // Dirección postal del bar
+    
+    @Column
+    private Double latitude; // Latitud (coordenada geográfica)
+    
+    @Column
+    private Double longitude; // Longitud (coordenada geográfica)
+    
     public User() {}
     
     public User(String email, String password, String barName, String clientId, String clientSecret, Token token) {
@@ -48,6 +57,13 @@ public class User {
         this.token = token;
         this.accountConfirmed = false;
         this.paymentConfirmed = false;
+    }
+    
+    public User(String email, String password, String barName, String clientId, String clientSecret, Token token, String address, Double latitude, Double longitude) {
+        this(email, password, barName, clientId, clientSecret, token);
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
     
     // ✅ HACER PÚBLICO
@@ -97,4 +113,13 @@ public class User {
     
     public Long getSubscriptionExpirationDate() { return subscriptionExpirationDate; }
     public void setSubscriptionExpirationDate(Long subscriptionExpirationDate) { this.subscriptionExpirationDate = subscriptionExpirationDate; }
+    
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
+    
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+    
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 }

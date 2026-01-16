@@ -80,6 +80,22 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-mail</artifactId>
     </dependency>
+
+	<!-- Selenium para tests de UI -->
+	<dependency>
+		<groupId>org.seleniumhq.selenium</groupId>
+		<artifactId>selenium-java</artifactId>
+		<version>4.16.1</version>
+		<scope>test</scope>
+	</dependency>
+
+	<!-- WebDriverManager para gestión automática de drivers -->
+	<dependency>
+		<groupId>io.github.bonigarcia</groupId>
+		<artifactId>webdrivermanager</artifactId>
+		<version>5.6.3</version>
+		<scope>test</scope>
+	</dependency>
 	</dependencies>
 
 	<build>
