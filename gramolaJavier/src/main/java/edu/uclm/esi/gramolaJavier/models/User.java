@@ -1,0 +1,88 @@
+package edu.uclm.esi.gramolaJavier.models;
+
+import java.security.MessageDigest;
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    private String email;
+    
+    @Column(nullable = false)
+    private String password;
+    
+    @Column(nullable = false)
+    private String barName;
+    
+    @Column(nullable = false)
+    private String clientId;
+    
+    @Column(nullable = false)
+    private String clientSecret;
+    
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "token_id")
+    private Token token;
+    
+    @Column(nullable = false)
+    private boolean accountConfirmed = false;
+    
+    @Column(nullable = false)
+    private boolean paymentConfirmed = false;
+    
+    public User() {}
+    
+    public User(String email, String password, String barName, String clientId, String clientSecret, Token token) {
+        this.email = email;
+        this.password = encryptPassword(password);
+        this.barName = barName;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.token = token;
+        this.accountConfirmed = false;
+        this.paymentConfirmed = false;
+    }
+    
+    // ✅ HACER PÚBLICO
+    public String encryptPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(password.getBytes("UTF-8"));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al encriptar contraseña", e);
+        }
+    }
+    
+    // Getters y Setters
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    
+    public String getBarName() { return barName; }
+    public void setBarName(String barName) { this.barName = barName; }
+    
+    public String getClientId() { return clientId; }
+    public void setClientId(String clientId) { this.clientId = clientId; }
+    
+    public String getClientSecret() { return clientSecret; }
+    public void setClientSecret(String clientSecret) { this.clientSecret = clientSecret; }
+    
+    public Token getToken() { return token; }
+    public void setToken(Token token) { this.token = token; }
+    
+    public boolean isAccountConfirmed() { return accountConfirmed; }
+    public void setAccountConfirmed(boolean accountConfirmed) { this.accountConfirmed = accountConfirmed; }
+    
+    public boolean isPaymentConfirmed() { return paymentConfirmed; }
+    public void setPaymentConfirmed(boolean paymentConfirmed) { this.paymentConfirmed = paymentConfirmed; }
+}
