@@ -20,9 +20,8 @@ import java.util.List;
 @Service
 public class PaymentService {
     
-    // ⚠️ CAMBIA ESTO POR TU SECRET KEY DE STRIPE
     static {
-        Stripe.apiKey = "sk_test_51RJHbY00mVaZlVqd0NSRizvf088qWsP0Fh2yZyR3hnQ3kDTeSTX45vgaFC74bmENx21rPF7FzVpOgxDMZ1A89QcF00wcCu4W4Q";
+        Stripe.apiKey = "ponaqui tu clave secreta";
     }
     
     @Autowired
